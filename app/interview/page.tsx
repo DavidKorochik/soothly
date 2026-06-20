@@ -360,7 +360,7 @@ function Welcome({
   return (
     <main className="flex min-h-dvh items-center justify-center px-6 py-16">
       <PaperField surface="full" />
-      <div className="paper-content soothly-fade w-full max-w-md">
+      <div className="paper-content soothly-rise w-full max-w-md">
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
