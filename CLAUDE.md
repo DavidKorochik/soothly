@@ -43,11 +43,19 @@ When adding a stage, follow this shape: one focused module under `lib/`, a small
 - **Validate at the boundary** — zod-parse every request body and external response before use. Never trust API output or user input.
 - **Small, focused files** — organize by domain (`lib/<stage>`), not by type. Extract when a file grows past a few hundred lines.
 - **Imports** — use the `@/` alias (mapped to repo root), e.g. `import { db } from "@/lib/db"`.
-- **Hebrew + RTL is the default** — `<html dir="rtl" lang="he">`. All user-facing strings (labels, buttons, errors) are Hebrew. Keep it that way unless a string is internal.
+- **Hebrew + RTL is the default** — `<html dir="rtl" lang="he">`. All user-facing strings (labels, buttons, errors) are Hebrew. Keep it that way unless a string is internal. Copy quality matters — see [Hebrew copy](#hebrew-copy).
 - **Tailwind tokens** — style with the theme tokens defined in `app/globals.css` (`bg-paper`, `text-ink`, `text-gold`, `font-serif`, …), not raw hex values.
 - **Client components are the exception** — mark `"use client"` only when a component needs interactivity; everything else stays a server component.
 - **Routes that render PDFs** need `runtime = "nodejs"`, `dynamic = "force-dynamic"`, and a raised `maxDuration` — Puppeteer can't run on the edge runtime.
 - **Single design source** — `docs/book_template.html` is the one source of truth for book styling; the PDF renderer reuses its `<head>`. Don't fork the styles.
+
+## Hebrew copy
+
+User-facing Hebrew is product surface, not a translation dump. Write it like a warm Israeli human wrote it — never like an AI-translated form. Specifics:
+
+- **No slash-gender forms.** `את/ה`, `כתוב/י`, `תחליט/י`, `בן/בת` read as bureaucratic and cringe. For **static** copy (the welcome/landing screens, before gender is known), phrase gender-neutrally instead: infinitives (`לחלוק`, `לכתוב`), impersonal `אפשר` (`אפשר לדלג`), and nominal phrases (`ההחלטה ... רק שלך`, `מה הגיל שלך?`). Unvocalized 2nd-person past is already gender-neutral in writing (`השארת`, `סיפרת`) — those are fine. **Dynamic** interview copy may use the real gender from intake, since it's known by then.
+- **Plain hyphen `-` only — never em/en dash (`—` `–`).** Author UI strings with `-` from the start. The book pipeline auto-strips `[—–]` → `-` from synthesized copy (`lib/pdf/template.ts`), but hardcoded UI strings skip that, so don't introduce them.
+- **Warm and premium, not clinical.** Avoid label-speak like the old `ספר הדפוסים` kicker; prefer human phrasing (`ספר אישי`). No filler, no marketing gloss.
 
 ## Working practices
 

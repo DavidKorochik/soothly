@@ -258,7 +258,7 @@ export default function InterviewPage() {
             }}
             disabled={busy}
             rows={1}
-            placeholder="כמה שבא לך לכתוב — גם שורה אחת מספיקה…"
+            placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה…"
             className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
             style={{ minHeight: "2rem" }}
             autoFocus
@@ -307,7 +307,7 @@ function Welcome({
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
-            <p className="mt-1 font-sans text-sm text-muted">השארת באמצע — אפשר להמשיך בדיוק מאיפה שעצרת.</p>
+            <p className="mt-1 font-sans text-sm text-muted">השארת באמצע - אפשר להמשיך בדיוק מאיפה שעצרת.</p>
             <div className="mt-4 flex justify-center gap-3">
               <button onClick={onResume} className="rounded-full bg-ink px-6 py-2.5 font-sans text-sm text-paper hover:opacity-90">
                 להמשיך
@@ -322,7 +322,7 @@ function Welcome({
         <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר אישי</p>
         <h1 className="mt-4 font-serif text-4xl leading-tight">ספר החיים שלך, בקולך</h1>
         <p className="mt-5 font-sans leading-relaxed text-ink-soft">
-          הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק — רק שלך.
+          הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק - רק שלך.
         </p>
         <p className="mt-2 font-sans text-sm leading-relaxed text-muted">
           בערך 20 דקות, שאלה אחת בכל פעם. אין תשובות נכונות, ואפשר לדלג על כל שאלה.
