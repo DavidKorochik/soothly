@@ -61,7 +61,7 @@ export default function SynthesizePage() {
             name="answers"
             required
             rows={16}
-            placeholder="הדביקו כאן את כל התשובות…"
+            placeholder="הדביקו כאן את כל התשובות"
             className={`${inputClass} resize-y font-sans leading-relaxed`}
           />
         </Field>
@@ -71,7 +71,7 @@ export default function SynthesizePage() {
           disabled={loading}
           className="rounded-full bg-ink px-7 py-3 font-sans text-sm text-paper transition hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "כותבים את הספר…" : "צור ספר"}
+          {loading ? "כותבים את הספר" : "יצירת ספר"}
         </button>
       </form>
 

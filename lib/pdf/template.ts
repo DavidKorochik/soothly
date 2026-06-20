@@ -30,7 +30,7 @@ function paragraphs(text: string): string[] {
 
 function cover(book: Book, name: string): string {
   return `<section class="page cover"><div class="frame">
-  <div class="occasion">ספר הדפוסים</div>
+  <div class="occasion">ספר אישי</div>
   <h1>${esc(book.title)}</h1>
   ${book.subtitle ? `<p class="sub">${esc(book.subtitle)}</p>` : ""}
   <div class="mark"></div>
