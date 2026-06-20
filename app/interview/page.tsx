@@ -90,16 +90,24 @@ export default function InterviewPage() {
     let shown = 0;
     let streamDone = false;
     let firstShown = false;
+    let pumpError: unknown = null;
 
     // Pump the network in the background; reveal it on a steady cadence below so the question reads
     // like someone typing to you, not like uneven network bursts.
     const pump = (async () => {
-      for (;;) {
-        const { done: rdone, value } = await reader.read();
-        if (rdone) break;
-        received += decoder.decode(value, { stream: true });
+      try {
+        for (;;) {
+          const { done: rdone, value } = await reader.read();
+          if (rdone) break;
+          received += decoder.decode(value, { stream: true });
+        }
+      } catch (e) {
+        pumpError = e;
+      } finally {
+        // Always release the reveal loop below, even on a mid-stream transport drop, so the UI
+        // surfaces the error instead of hanging forever with the input disabled.
+        streamDone = true;
       }
-      streamDone = true;
     })();
 
     await new Promise<void>((resolve) => {
@@ -138,6 +146,11 @@ export default function InterviewPage() {
     await pump;
     setBusy(false);
     setThinking(false);
+    // A failed turn shows up two ways: the AI SDK swallows a model error into a 200 with an empty
+    // body (empty stream), and a transport drop mid-stream rejects the read (pumpError). Either way
+    // the turn failed - surface it via the caller's catch instead of rendering a blank or hanging.
+    if (pumpError) throw pumpError;
+    if (!received.trim()) throw new Error("empty stream");
     return { engine: nextEngine, done, sessionId: sid };
   }
 
@@ -157,7 +170,7 @@ export default function InterviewPage() {
       if (r.sessionId) setSessionId(r.sessionId);
       setEngine(r.engine);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
     }
   }
 
@@ -191,7 +204,13 @@ export default function InterviewPage() {
       setEngine(r.engine);
       if (r.done) setStep("done");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. אפשר לשלוח שוב." }]);
+      // Drop the empty assistant placeholder streamTurn added before the failure so it does not
+      // linger in state (and localStorage) ahead of the error message.
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        const base = last?.role === "assistant" && !last.content.trim() ? m.slice(0, -1) : m;
+        return [...base, { role: "assistant", content: "משהו השתבש בשליחה. אפשר לנסות שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }];
+      });
     }
   }
 
