@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-6">
@@ -7,7 +9,13 @@ export default function Home() {
         <p className="mb-8 font-sans text-lg leading-relaxed text-ink-soft">
           מקום שקט לספר את החיים שלך - ולגלות את מה שרק מבחוץ אפשר לראות.
         </p>
-        <div className="mx-auto h-px w-9 bg-gold-line" />
+        <Link
+          href="/interview"
+          className="inline-block rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90"
+        >
+          להתחיל לספר
+        </Link>
+        <div className="mx-auto mt-10 h-px w-9 bg-gold-line" />
         <p className="mt-8 font-sans text-xs text-muted">Soothly</p>
       </div>
     </main>
