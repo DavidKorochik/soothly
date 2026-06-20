@@ -1,6 +1,6 @@
 # Soothly
 
-Hebrew-first (RTL) web app that interviews a person about their life and synthesizes the answers
+Web app that interviews a person about their life and synthesizes the answers
 into a beautifully designed, personalized Hebrew book of the patterns and lessons they can't see in
 themselves.
 
