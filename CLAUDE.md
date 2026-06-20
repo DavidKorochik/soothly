@@ -52,9 +52,17 @@ When adding a stage, follow this shape: one focused module under `lib/`, a small
 ## Working practices
 
 - **Settings** go in `.claude/settings.json` only. Never create or modify `settings.local.json`.
-- **Comments** — add one short, plain-English sentence only on complex functions (non-trivial logic, multiple steps, non-obvious behavior). Leave well-named simple functions, fields, and types uncommented. No multi-paragraph docstrings, no restating the signature.
 - **Errors are explicit** — handle them at every level, user-friendly message in UI code, detailed context server-side. Never silently swallow.
 - **Secrets** — never hardcode. Everything sensitive comes from env vars (see `.env.example`): `DATABASE_URL`, `ANTHROPIC_API_KEY`, `BLOB_READ_WRITE_TOKEN`, `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`.
+
+## Comments
+
+Most code needs no comment — good names carry the meaning. Write one only when it earns its place.
+
+- Comment a **complex** function with one short, plain-English sentence — non-trivial logic, multiple steps, or non-obvious behavior. Nothing else gets a comment.
+- **Never write redundant comments.** No comment that restates the code, the signature, or an already-clear name (`// loop over users` above a loop over users). If the comment and the line say the same thing, the comment is noise — delete it.
+- Comment the *why*, not the *what* — a workaround, a constraint, a deliberate shortcut. The code already shows what it does.
+- Keep every comment to one sentence. No multi-paragraph docstrings, no annotating every field.
 
 ## Verifying runtime claims
 
@@ -63,3 +71,21 @@ Reason from first principles, then back every behavioral claim with evidence —
 ## Code review — steel-man every finding
 
 Before reporting a bug or concern, construct the strongest counter-argument against your own finding. Drop it if the counter-argument wins; report it only after you've tried and failed to refute it. When two findings rest on contradictory premises, at most one is correct — reconcile first. If a concern and its counter-argument stay balanced, report it as low-confidence with both sides laid out and defer the call — don't bury the uncertainty under "probably."
+
+## Before you're done
+
+Run this every time, before claiming work complete:
+
+- [ ] `npm run build` passes — typecheck clean, no errors
+- [ ] Ran the code path you actually changed — show it works, don't assert it
+- [ ] Every behavioral claim has evidence (see *Verifying runtime claims*)
+- [ ] No leftover debug logs, dead code, or redundant comments
+
+**For big or important changes** — a new pipeline stage, a schema change or migration, anything touching the safety / synthesis / PDF / storage paths, or anything handling user input or secrets — don't self-review. Fan out parallel review subagents with the `superpowers:dispatching-parallel-agents` skill, dispatching the reviewers that match the change:
+
+- `everything-claude-code:typescript-reviewer` — type safety, async correctness, idioms (default for any TS change)
+- `everything-claude-code:security-reviewer` — input validation, secrets, the synthesize / PDF / storage paths
+- `everything-claude-code:silent-failure-hunter` — swallowed errors and bad fallbacks (matters given fail-closed safety)
+- `everything-claude-code:database-reviewer` — Drizzle schema, migrations, and queries
+
+**Use the skills, don't reinvent them.** Reach for `ponytail` to cut over-engineering before you finish, `/simplify` to tighten the diff, and `/code-review` for a correctness pass. If a skill already covers what you're doing, invoke it instead of hand-rolling.

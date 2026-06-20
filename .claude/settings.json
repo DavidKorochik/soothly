@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build)",
+      "Bash(npm run test:*)",
+      "Bash(npm run db:generate)",
+      "Bash(npm run db:studio)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git restore:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(rg:*)",
+      "Bash(grep:*)"
+    ],
+    "ask": [
+      "Bash(npm run db:push)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}

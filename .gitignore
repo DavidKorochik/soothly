@@ -19,6 +19,9 @@ desktop.ini
 .env
 .env.*
 !.env.example
+
+# Conductor — personal per-machine overrides (settings.toml is committed)
+.conductor/settings.local.toml
 *.pem
 *.key
 secrets.json

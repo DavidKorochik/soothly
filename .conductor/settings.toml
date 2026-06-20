@@ -1,0 +1,19 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Committed, team-shared Conductor config. Every new workspace (git worktree)
+# runs `setup` once after checkout, then `run` to start a dev server.
+# Personal overrides go in .conductor/settings.local.toml (gitignored).
+
+[scripts]
+# node_modules is gitignored, so each fresh worktree installs its own.
+setup = "npm install"
+
+# $CONDUCTOR_PORT keeps parallel workspaces off the same port.
+run = "npm run dev -- --port $CONDUCTOR_PORT"
+
+# Lets multiple workspaces run their dev servers at the same time.
+run_mode = "concurrent"
+
+# Note: all workspaces share one Neon DB via DATABASE_URL. Don't run
+# `db:push` from parallel workspaces against the same branch — they'd
+# clobber each other's schema. Run migrations from one workspace only.
