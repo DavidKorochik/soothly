@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent } from "react";
+import BrandMark from "./BrandMark";
 
 // The landing CTA plays a gentle "rise away" exit before handing off to the interview: the words
 // drift up and fade, then we navigate (the welcome card rises up to meet them). A plain left-click
@@ -22,6 +23,7 @@ export default function LandingHero() {
 
   return (
     <div className={`paper-content max-w-prose text-center${leaving ? " soothly-leave" : ""}`}>
+      <BrandMark className="mx-auto mb-7 h-9 w-auto" />
       <p className="mb-6 font-sans text-xs tracking-[0.28em] text-muted">ספר אישי</p>
       <h1 className="mb-5 font-serif text-4xl leading-tight sm:text-5xl">כאן נולד הספר שלך</h1>
       <p className="mb-8 font-sans text-lg leading-relaxed text-ink-soft">
