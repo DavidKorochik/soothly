@@ -50,6 +50,11 @@ build/
 out/
 *.tsbuildinfo
 
+# Next.js / Vercel
+.next/
+next-env.d.ts
+.vercel
+
 # Logs / temp
 *.log
 logs/

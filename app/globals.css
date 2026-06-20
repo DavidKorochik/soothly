@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/* Palette + type echo docs/book_template.html so the web UI and the printed
+   book feel of-a-piece. Tokens here generate Tailwind utilities (bg-paper, text-gold, ...). */
+@theme {
+  --color-paper: #f7f3ec;
+  --color-ink: #1b1a17;
+  --color-ink-soft: #4a453d;
+  --color-muted: #8a8275;
+  --color-gold: #a87c4f;
+  --color-gold-line: #c9a877;
+  --color-rule: #e2d9c8;
+
+  --font-serif: var(--font-frank), Georgia, serif;
+  --font-sans: var(--font-heebo), system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
