@@ -5,6 +5,7 @@ import { START, type EngineState } from "@/lib/interview/engine";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
+import PaperField from "@/app/components/PaperField";
 
 // Dictation augments typed text rather than replacing it: append after a space, or a new line
 // when the existing text already closes a sentence (Hebrew has no capitals to mark the seam).
@@ -205,7 +206,8 @@ export default function InterviewPage() {
   if (step === "done") {
     return (
       <main className="flex min-h-dvh items-center justify-center px-6">
-        <div className="soothly-fade max-w-prose text-center">
+        <PaperField surface="full" />
+        <div className="paper-content soothly-fade max-w-prose text-center">
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
           <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">הספר של {intake.name}</h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
@@ -235,7 +237,8 @@ export default function InterviewPage() {
   }
 
   return (
-    <main className="relative flex min-h-dvh flex-col">
+    <main className="relative isolate flex min-h-dvh flex-col">
+      <PaperField surface="focused" />
       <div className="fixed inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
         <div className="mx-auto max-w-2xl px-6 pb-3 pt-5">
           <div className="mb-2 flex items-baseline justify-between">
@@ -255,7 +258,7 @@ export default function InterviewPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-24">
+      <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-24">
         {lastUser && (
           <p className="soothly-fade mb-8 border-r-2 border-rule pr-4 font-serif text-base leading-relaxed text-muted/80">
             {lastUser.content}
@@ -337,7 +340,8 @@ function Welcome({
 }) {
   return (
     <main className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <div className="soothly-fade w-full max-w-md">
+      <PaperField surface="full" />
+      <div className="paper-content soothly-fade w-full max-w-md">
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
