@@ -328,10 +328,10 @@ export default function InterviewPage() {
               <button
                 onClick={() => void send()}
                 disabled={busy || voiceActive || !input.trim()}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
                 aria-label="המשך"
               >
-                <span className="text-xl leading-none">←</span>
+                <span className="text-lg leading-none">←</span>
               </button>
             </div>
           </div>
