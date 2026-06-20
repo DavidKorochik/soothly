@@ -170,7 +170,7 @@ export default function InterviewPage() {
       if (r.sessionId) setSessionId(r.sessionId);
       setEngine(r.engine);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
     }
   }
 
