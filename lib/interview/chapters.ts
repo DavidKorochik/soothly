@@ -7,7 +7,7 @@ export const CHAPTERS: { label: string; keys: string[] }[] = [
   { label: "מאיפה באת", keys: ["roots", "childhood"] },
   { label: "רגעים שעיצבו אותך", keys: ["turning", "decision", "hardship", "failure"] },
   { label: "אנשים, דפוסים, צללים", keys: ["people", "pattern", "fear", "shadow"] },
-  { label: "מי שאת/ה היום", keys: ["insight", "change"] },
+  { label: "מי שנהיית", keys: ["insight", "change"] },
   { label: "ולאן מכאן", keys: ["future", "pride"] },
 ];
 

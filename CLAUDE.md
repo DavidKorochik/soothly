@@ -53,6 +53,8 @@ When adding a stage, follow this shape: one focused module under `lib/`, a small
 
 User-facing Hebrew is product surface, not a translation dump. Write it like a warm Israeli human wrote it — never like an AI-translated form. Specifics:
 
+**Research before you write.** Before drafting any user-facing Hebrew, read [`docs/hebrew_voice.md`](docs/hebrew_voice.md) — the research-grounded brand-voice guide: native-vs-translationese tells, modern Israeli microcopy patterns, the gender-neutral static-copy toolkit, and a pre-ship cringe checklist. The bullets below are the short version; the guide is the full law.
+
 - **No slash-gender forms.** `את/ה`, `כתוב/י`, `תחליט/י`, `בן/בת` read as bureaucratic and cringe. For **static** copy (the welcome/landing screens, before gender is known), phrase gender-neutrally instead: infinitives (`לחלוק`, `לכתוב`), impersonal `אפשר` (`אפשר לדלג`), and nominal phrases (`ההחלטה ... רק שלך`, `מה הגיל שלך?`). Unvocalized 2nd-person past is already gender-neutral in writing (`השארת`, `סיפרת`) — those are fine. **Dynamic** interview copy may use the real gender from intake, since it's known by then.
 - **Plain hyphen `-` only — never em/en dash (`—` `–`).** Author UI strings with `-` from the start. The book pipeline auto-strips `[—–]` → `-` from synthesized copy (`lib/pdf/template.ts`), but hardcoded UI strings skip that, so don't introduce them.
 - **Warm and premium, not clinical.** Avoid label-speak like the old `ספר הדפוסים` kicker; prefer human phrasing (`ספר אישי`). No filler, no marketing gloss.

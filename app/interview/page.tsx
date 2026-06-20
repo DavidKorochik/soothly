@@ -142,7 +142,7 @@ export default function InterviewPage() {
       if (r.sessionId) setSessionId(r.sessionId);
       setEngine(r.engine);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. נסו לרענן ולהתחיל שוב." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב." }]);
     }
   }
 
@@ -176,7 +176,7 @@ export default function InterviewPage() {
       setEngine(r.engine);
       if (r.done) setStep("done");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. נסו לשלוח שוב." }]);
+      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. אפשר לשלוח שוב." }]);
     }
   }
 
@@ -235,7 +235,7 @@ export default function InterviewPage() {
         )}
 
         {thinking && !assistantText ? (
-          <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="חושב על מה שסיפרת" />
+          <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="קוראים את מה שסיפרת" />
         ) : (
           <h2 key={messages.length} className="soothly-rise font-serif text-2xl leading-relaxed text-ink sm:text-[28px] sm:leading-relaxed">
             {assistantText}
@@ -258,7 +258,7 @@ export default function InterviewPage() {
             }}
             disabled={busy}
             rows={1}
-            placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה…"
+            placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
             className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
             style={{ minHeight: "2rem" }}
             autoFocus
