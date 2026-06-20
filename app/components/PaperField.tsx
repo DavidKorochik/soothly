@@ -14,10 +14,15 @@ export default function PaperField({ surface = "full" }: { surface?: "full" | "f
 
       {full && (
         <>
-          <BotanicalSprig className="paper-sprig absolute h-44 w-44 sm:h-56 sm:w-56" style={{ bottom: -18, insetInlineStart: -14 }} />
           <BotanicalSprig
-            className="paper-sprig absolute h-36 w-36 sm:h-48 sm:w-48"
-            style={{ top: -18, insetInlineEnd: -14, transform: "rotate(180deg)" }}
+            variant="bough"
+            className="paper-sprig absolute h-[230px] w-[230px] sm:h-[400px] sm:w-[400px]"
+            style={{ bottom: -32, insetInlineEnd: -28 }}
+          />
+          <BotanicalSprig
+            variant="accent"
+            className="paper-sprig absolute h-[112px] w-[112px] sm:h-[150px] sm:w-[150px]"
+            style={{ top: -8, insetInlineStart: -10 }}
           />
 
           {MOTES.map((m, i) => (

@@ -9,6 +9,7 @@
   --color-muted: #8a8275;
   --color-gold: #a87c4f;
   --color-gold-line: #c9a877;
+  --color-sage: #9aa888;
   --color-rule: #e2d9c8;
 
   --font-serif: var(--font-frank), Georgia, serif;
@@ -57,7 +58,7 @@ button:not(:disabled),
 }
 .paper-wash--focused { opacity: 0.3; }
 
-.paper-sprig { opacity: 0.26; }
+.paper-sprig { opacity: 0.5; }
 
 /* Motes animate only transform + opacity (GPU-compositable); slow enough to read as atmosphere. */
 .paper-mote {
