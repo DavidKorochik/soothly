@@ -9,7 +9,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "node --experimental-strip-types --test lib/synthesis/parse.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/transcription/transcribe.test.ts"
+    "test": "node --experimental-strip-types --test lib/synthesis/parse.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/transcription/transcribe.test.ts lib/status/check.test.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",
