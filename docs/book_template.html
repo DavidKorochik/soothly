@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ספר הדפוסים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Suez+One&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F3EC;        /* warm paper */
+    --ink:#1B1A17;          /* deep warm ink */
+    --ink-soft:#4A453D;     /* secondary text */
+    --muted:#8A8275;        /* captions / eyebrows */
+    --gold:#A87C4F;         /* brass — the "gold" of the nuggets, used sparingly */
+    --gold-line:#C9A877;
+    --rule:#E2D9C8;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#E8E2D6;}
+  body{
+    font-family:"Frank Ruhl Libre", serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.85;
+  }
+
+  /* ---- the "pages" ---- */
+  .page{
+    width:148mm;               /* A5-ish keepsake proportion */
+    min-height:210mm;
+    margin:14px auto;
+    background:var(--paper);
+    padding:26mm 22mm;
+    position:relative;
+    box-shadow:0 10px 40px rgba(40,30,15,.16);
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* eyebrow / utility labels */
+  .eyebrow{
+    font-family:"Heebo",sans-serif;
+    font-size:11px;
+    letter-spacing:.28em;
+    color:var(--muted);
+    font-weight:500;
+  }
+
+  /* ---------- COVER ---------- */
+  .cover{justify-content:center; text-align:center;}
+  .cover .frame{
+    border:1px solid var(--gold-line);
+    padding:30mm 14mm;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+  }
+  .cover .occasion{
+    font-family:"Heebo",sans-serif;
+    font-size:12px; letter-spacing:.34em; color:var(--gold);
+    margin-bottom:30px; font-weight:500;
+  }
+  .cover h1{
+    font-family:"Suez One", serif;
+    font-weight:400;
+    font-size:46px;
+    line-height:1.18;
+    margin:0 0 18px;
+    letter-spacing:-.01em;
+  }
+  .cover .sub{
+    font-size:17px; color:var(--ink-soft); font-style:normal;
+    max-width:30ch; margin:0 auto;
+  }
+  .cover .mark{
+    width:34px;height:1px;background:var(--gold-line);
+    margin:34px auto;position:relative;
+  }
+  .cover .mark::before,.cover .mark::after{
+    content:"";position:absolute;top:-2px;width:5px;height:5px;
+    background:var(--gold);border-radius:50%;
+  }
+  .cover .mark::before{right:-3px;} .cover .mark::after{left:-3px;}
+  .cover .name{
+    font-family:"Suez One",serif;font-size:26px;margin-top:6px;
+  }
+
+  /* ---------- OPENING ---------- */
+  .opening{justify-content:center;}
+  .opening .eyebrow{margin-bottom:22px;}
+  .opening p{
+    font-size:18px;line-height:2.05;color:var(--ink);
+    margin:0 0 18px;
+  }
+  .opening .lead::first-letter{
+    font-family:"Suez One",serif;
+    font-size:58px;float:right;line-height:.8;
+    margin:6px 0 0 10px;color:var(--gold);
+  }
+
+  /* ---------- CHAPTER ---------- */
+  .chapter .ch-head{margin-bottom:20px;}
+  .ch-num{
+    font-family:"Suez One",serif;
+    font-size:40px;color:var(--gold);line-height:1;
+    display:block;margin-bottom:8px;
+  }
+  .ch-title{
+    font-family:"Frank Ruhl Libre",serif;font-weight:900;
+    font-size:27px;line-height:1.25;margin:0;
+  }
+  .ch-rule{height:1px;background:var(--rule);margin:18px 0 22px;}
+  .chapter p{font-size:16.5px;margin:0 0 16px;color:var(--ink-soft);}
+  .chapter p strong{color:var(--ink);font-weight:500;}
+
+  /* the nugget — "הזהב" — the one signature element */
+  .nugget{
+    margin:26px 0 4px;
+    padding:20px 22px 20px 22px;
+    border-right:3px solid var(--gold);
+    background:linear-gradient(90deg, rgba(168,124,79,.07), rgba(168,124,79,0));
+  }
+  .nugget .label{
+    font-family:"Heebo",sans-serif;font-size:10px;letter-spacing:.3em;
+    color:var(--gold);font-weight:700;display:block;margin-bottom:8px;
+  }
+  .nugget .line{
+    font-family:"Frank Ruhl Libre",serif;font-weight:500;font-style:normal;
+    font-size:19px;line-height:1.6;color:var(--ink);
+  }
+
+  /* ---------- CLOSING ---------- */
+  .closing{justify-content:center;text-align:center;}
+  .closing .eyebrow{margin-bottom:22px;}
+  .closing p{font-size:18px;line-height:2.05;max-width:34ch;margin:0 auto 18px;}
+  .closing .signoff{
+    font-family:"Suez One",serif;font-size:22px;color:var(--gold);margin-top:26px;
+  }
+
+  /* page number */
+  .folio{
+    position:absolute;bottom:14mm;left:0;right:0;text-align:center;
+    font-family:"Heebo",sans-serif;font-size:11px;color:var(--muted);
+  }
+
+  /* screen-only controls */
+  .toolbar{
+    position:fixed;top:16px;left:16px;z-index:50;
+    font-family:"Heebo",sans-serif;
+  }
+  .toolbar button{
+    background:var(--ink);color:var(--paper);border:none;
+    padding:10px 18px;border-radius:999px;font-size:13px;font-weight:500;
+    cursor:pointer;letter-spacing:.02em;box-shadow:0 4px 14px rgba(0,0,0,.2);
+  }
+  .hint{
+    font-family:"Heebo",sans-serif;font-size:12px;color:#6b6256;
+    text-align:center;margin:18px auto 4px;max-width:520px;
+  }
+
+  /* ---------- PRINT ---------- */
+  @page{ size:148mm 210mm; margin:0; }
+  @media print{
+    html,body{background:#fff;}
+    .toolbar,.hint{display:none !important;}
+    .page{
+      margin:0;box-shadow:none;width:148mm;min-height:210mm;
+      page-break-after:always;break-after:page;
+    }
+    .page:last-child{page-break-after:auto;}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">שמירה כ‑PDF / הדפסה ⌘P</button>
+</div>
+<p class="hint">תבנית ספר — מלא/י את התוכן מתוך פלט ה‑prompt (במקום הטקסט הזמני). אחר כך "שמירה כ‑PDF". התוכן למטה הוא דוגמה להמחשת המבנה.</p>
+
+<!-- ============ COVER ============ -->
+<section class="page cover">
+  <div class="frame">
+    <div class="occasion">לרגל השחרור</div>
+    <!-- [TITLE] -->
+    <h1>הרעש שמתחת<br>לשקט</h1>
+    <p class="sub">דפוסים, החלטות והדברים שלמדת על עצמך — בלי לשים לב</p>
+    <div class="mark"></div>
+    <!-- NAME -->
+    <div class="name">לנועה</div>
+  </div>
+</section>
+
+<!-- ============ OPENING ============ -->
+<section class="page opening">
+  <div class="eyebrow">פתח דבר</div>
+  <!-- [OPENING] -->
+  <p class="lead">נועה, את עומדת עכשיו על סף. מאחורייך שלוש שנים שלא תמיד בחרת, ולפנייך
+    שנים שכן. בין שני אלה יש רגע קצר — בדיוק הרגע הזה — שבו אפשר להסתכל אחורה ולראות
+    לא רק מה עשית, אלא מי הפכת להיות תוך כדי.</p>
+  <p>הספר הזה לא מספר לך מה קרה. את היית שם. הוא מנסה לעשות משהו אחר: לקחת את הסיפורים
+    שכתבת, ולמצוא בהם את החוטים שחוזרים — אלה שקשה לראות כשאת בתוך התמונה. חלק מהם יפתיעו
+    אותך. חלק כבר ידעת, אבל לא במילים.</p>
+  <p>תקראי לאט. זה לא מבחן, ואין כאן ציון. יש כאן רק את — כפי שאת נראית מבחוץ, לרגע אחד.</p>
+  <div class="folio">·</div>
+</section>
+
+<!-- ============ CHAPTER 1 ============ -->
+<section class="page chapter">
+  <div class="ch-head">
+    <!-- [CH1_NUM] / [CH1_TITLE] -->
+    <span class="ch-num">01</span>
+    <h2 class="ch-title">המנוע שקראת לו חוסר שקט</h2>
+  </div>
+  <div class="ch-rule"></div>
+  <!-- [CH1_BODY] -->
+  <p>שלוש פעמים זה חזר בתשובות שלך, ולא שמת לב. בטירונות, כשביקשת לעבור למחלקה
+    מאתגרת יותר. בקורס, כשסיימת ראשונה והרגשת <strong>"ריק במקום גאווה"</strong>. וברגע
+    שהחלטת לא לחתום — דווקא כשהכל סוף סוף הסתדר.</p>
+  <p>קראת לזה חוסר שקט, וכתבת את זה כאילו זו חולשה. אבל מי שקורא את שלושת הסיפורים
+    יחד רואה משהו אחר לגמרי. זה לא בריחה מדברים. זו יכולת נדירה לדעת מתי משהו כבר נתן
+    לך את כל מה שהיה לו לתת — ולא להישאר שם רק כי נוח.</p>
+  <p>הסכנה שלך לא תהיה חוסר שקט. היא תהיה היום שבו תבלבלי בין "סיימתי כאן" לבין
+    "ברחתי מכאן". ההבדל ביניהם הוא כל הסיפור של חמש השנים הבאות.</p>
+  <div class="nugget">
+    <span class="label">הזהב</span>
+    <!-- [CH1_NUGGET] -->
+    <span class="line">מה שנראה לך כמו "לא לסיים דברים" הוא בעצם היכולת לדעת מתי דבר
+      כבר נתן לך את כל מה שהיה לו לתת.</span>
+  </div>
+  <div class="folio">01</div>
+</section>
+
+<!-- ============ CHAPTER 2 ============ -->
+<section class="page chapter">
+  <div class="ch-head">
+    <span class="ch-num">02</span>
+    <h2 class="ch-title">מה שעשית כשאף אחד לא ביקש</h2>
+  </div>
+  <div class="ch-rule"></div>
+  <p>הרגע הכי קשה שתיארת לא היה רגע שבו נכשלת. הוא היה הלילה שבו <strong>נשארת עם
+    החיילת החדשה אחרי המשמרת</strong>, כי ראית שהיא עומדת להישבר — ואף אחד לא הטיל
+    עלייך את זה.</p>
+  <p>שמת לב שזה חוזר? במקומות שונים, אותו דבר: את מזהה את האדם שכולם מפספסים, וניגשת.
+    זה לא רשום בשום הערכה מפקדים. אבל זה אולי הדבר הכי עקבי שעשית בשירות.</p>
+  <p>זה גם מה שאנשים, לדברייך, "לא מבינים נכון" — הם חושבים שאת רכה. את לא רכה. את
+    פשוט שמה לב למה שאחרים לא טורחים לראות, ואז עושה עם זה משהו.</p>
+  <div class="nugget">
+    <span class="label">הזהב</span>
+    <span class="line">היכולת לראות את מי שכולם מפספסים היא לא רכות — היא סוג של מנהיגות
+      שאין לה תג.</span>
+  </div>
+  <div class="folio">02</div>
+</section>
+
+<!-- ============ CHAPTER 3 ============ -->
+<section class="page chapter">
+  <div class="ch-head">
+    <span class="ch-num">03</span>
+    <h2 class="ch-title">הפחד שכבר התאמנת עליו</h2>
+  </div>
+  <div class="ch-rule"></div>
+  <p>כתבת שאת הכי חוששת מ<strong>"להתחיל מאפס במקום שאף אחד לא מכיר אותי"</strong>.
+    הוגן לפחד מזה. אבל שווה לזכור משהו שכתבת שני עמודים קודם, בלי לקשר.</p>
+  <p>לפני שלוש שנים נכנסת לבסיס שבו לא הכרת נפש אחת. גם אז לא ידעת מה את עושה. ועדיין —
+    מצאת את האנשים שלך, מצאת תפקיד, ובנית מעמד מאפס. כבר עשית בדיוק את הדבר שממנו את
+    מפחדת. פעם אחת לפחות, וכנראה יותר.</p>
+  <p>הפחד אמיתי. אבל הוא לא מדויק. את לא מתחילה מאפס — את מתחילה עם ניסיון שלם של מישהי
+    שכבר נחתה בעולם זר והפכה אותו לבית.</p>
+  <div class="nugget">
+    <span class="label">הזהב</span>
+    <span class="line">כבר עשית את הדבר שממנו את מפחדת. השאלה היא לא אם תצליחי — אלא אם
+      תזכרי שכבר הצלחת.</span>
+  </div>
+  <div class="folio">03</div>
+</section>
+
+<!-- ============ CLOSING ============ -->
+<section class="page closing">
+  <div class="eyebrow">ולסיום</div>
+  <!-- [CLOSING] -->
+  <p>שלוש השנים האלה לא נתנו לך רק זיכרונות. הן נתנו לך כמה דברים שאת עוד לא יודעת
+    שיש לך — היכולת לדעת מתי לעזוב, העין שרואה את מי שכולם מפספסים, והניסיון שכבר
+    הוכיח לך שאת יודעת לנחות בזרים.</p>
+  <p>אף אחד מהם לא ייעלם כשתורידי את המדים. הם נשארים. הם שלך עכשיו.</p>
+  <div class="signoff">בהצלחה בצד השני של הסף.</div>
+  <div class="folio">·</div>
+</section>
+
+</body>
+</html>
