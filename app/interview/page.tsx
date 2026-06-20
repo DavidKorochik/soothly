@@ -3,6 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
+import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
+import { isRecordingSupported } from "./recorderMime";
+
+// Dictation augments typed text rather than replacing it: append after a space, or a new line
+// when the existing text already closes a sentence (Hebrew has no capitals to mark the seam).
+function appendDictation(prev: string, text: string): string {
+  const a = prev.trim();
+  if (!a) return text;
+  return /[.!?…]$/.test(a) ? `${a}\n${text}` : `${a} ${text}`;
+}
 
 type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender; age: string };
@@ -22,7 +32,11 @@ export default function InterviewPage() {
   const [thinking, setThinking] = useState(false);
   const [input, setInput] = useState("");
   const [resumable, setResumable] = useState<Saved | null>(null);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [voice, setVoice] = useState<VoiceUiState>({ status: "idle", errorMessage: null, seconds: 0 });
   const taRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => setVoiceSupported(isRecordingSupported()), []);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -205,6 +219,20 @@ export default function InterviewPage() {
   const fills = chapterFills(engine.phase, engine.index);
   const label = chapterLabel(engine.phase, engine.index);
   const nearGoal = progress(engine.phase, engine.index) >= 0.8;
+  const voiceActive = voice.status === "requesting" || voice.status === "recording" || voice.status === "transcribing";
+
+  function onVoiceTranscript(text: string) {
+    setInput((prev) => appendDictation(prev, text));
+    requestAnimationFrame(() => {
+      growInput();
+      const el = taRef.current;
+      if (el) {
+        el.focus();
+        const end = el.value.length;
+        el.setSelectionRange(end, end);
+      }
+    });
+  }
 
   return (
     <main className="relative flex min-h-dvh flex-col">
@@ -256,7 +284,7 @@ export default function InterviewPage() {
                 void send();
               }
             }}
-            disabled={busy}
+            disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
             className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
@@ -266,20 +294,26 @@ export default function InterviewPage() {
           <div className="mt-4 flex items-center justify-between">
             <button
               onClick={() => void send(true)}
-              disabled={busy}
+              disabled={busy || voiceActive}
               className="font-sans text-sm text-muted underline-offset-4 hover:underline disabled:opacity-40"
             >
               אפשר לדלג על השאלה
             </button>
-            <button
-              onClick={() => void send()}
-              disabled={busy || !input.trim()}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
-              aria-label="המשך"
-            >
-              <span className="text-xl leading-none">←</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {voiceSupported && (
+                <MicButton sessionId={sessionId} disabled={busy} onTranscript={onVoiceTranscript} onState={setVoice} />
+              )}
+              <button
+                onClick={() => void send()}
+                disabled={busy || voiceActive || !input.trim()}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
+                aria-label="המשך"
+              >
+                <span className="text-xl leading-none">←</span>
+              </button>
+            </div>
           </div>
+          {voiceSupported && <VoiceStatusLine {...voice} />}
         </div>
       </div>
     </main>
