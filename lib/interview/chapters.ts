@@ -21,3 +21,14 @@ export function progress(phase: Phase, index: number): number {
   if (phase === 1) return (index / PHASE1_LEN) * 0.1;
   return 0.18 + (index / PHASE2_LEN) * 0.82;
 }
+
+// Per-chapter fill (0..1) for the segmented progress: past chapters full, the current one partial.
+export function chapterFills(phase: Phase, index: number): number[] {
+  const key = questionAt(phase, index)?.key;
+  const current = CHAPTERS.findIndex((c) => key !== undefined && c.keys.includes(key));
+  return CHAPTERS.map((c, i) => {
+    if (current === -1 || i > current) return 0;
+    if (i < current) return 1;
+    return Math.min(1, (c.keys.indexOf(key!) + 1) / c.keys.length);
+  });
+}
