@@ -12,7 +12,7 @@ export type SafetyDecision = { proceed: true } | { proceed: false; message: stri
 // Shown when generation is paused for human review. Warm, hopeful, never clinical; real resources.
 export const SUPPORT_MESSAGE = `תודה ששיתפת. חלק ממה שכתבת נגע בדברים כבדים, ואנחנו רוצים להחזיק אותם בעדינות - לא להעביר אותם דרך מכונה. לכן הספר שלך לא ייווצר אוטומטית עכשיו; אדם אמיתי יקרא את מה שכתבת, ונחזור אליך.
 
-ואם קשה לך דווקא עכשיו - אינך לבד, ויש עם מי לדבר, מתי שתרצה/י:
+ואם קשה לך דווקא עכשיו - אינך לבד, ויש עם מי לדבר, מתי שבא לך:
 ער״ן - קו תמיכה רגשית, טלפון 1201, 24 שעות ביממה.
 סה״ר - תמיכה אנונימית בצ׳אט באתר sahar.org.il.
 

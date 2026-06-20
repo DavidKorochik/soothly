@@ -16,7 +16,7 @@ const heebo = Heebo({
 
 export const metadata: Metadata = {
   title: "Soothly",
-  description: "ספר הדפוסים — הסיפור שלך, כפי שנראה מבחוץ.",
+  description: "ספר אישי - הסיפור שלך, כפי שנראה מבחוץ.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

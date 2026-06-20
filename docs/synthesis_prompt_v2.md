@@ -69,6 +69,7 @@ it feel true — but land each chapter somewhere constructive. This is a book so
   nothing that would make a native reader cringe. Read each sentence aloud in your head: if it
   sounds like a translation or a greeting card, rewrite it plainer.
 - Punctuation: use a plain hyphen "-" for any dash. Never use an em-dash (—) or en-dash (–).
+- אסור: אוצר-מילים של ספר-הדרכה (מסע, צמיחה, להעצים, אותנטי, נבכי הנשמה, להתחבר לעצמך), מליצות ארכאיות (בכדי, אשר, על מנת, מהווה, הינו, באפשרותך, ניתן), ותרגומית (בסופו של יום, לספק חוויה, עבור במקום ל-, שרשרת של/סמיכות ארוכה). להעדיף פועל ונושא אנושי על פני שם-פעולה מופשט.
 
 ## OUTPUT STRUCTURE (Hebrew, with these markers)
 ```
@@ -92,11 +93,11 @@ a book, not a summary. But every paragraph must stay anchored; no drifting into 
 <150–250 words. Not a recap — a send-off. What they carry forward. Earned, not a poster.>
 ```
 
-## CALIBRATION — Hebrew (study before writing)
-**❌ generic:** את אדם רגיש שאכפת לו, אבל גם יודעת לעמוד על שלך.
-**✅ anchored:** שלוש פעמים זה חזר בתשובות שלך — בבית שגדלת בו, בפרידה שתיארת, ובהחלטה לעזוב
+## CALIBRATION - Hebrew (study before writing)
+**❌ generic:** את רגישה ואכפתית, אבל גם יודעת לעמוד על שלך.
+**✅ anchored:** שלוש פעמים זה חזר בתשובות שלך - בבית שגדלת בו, בפרידה שתיארת, ובהחלטה לעזוב
 את העבודה: בדיוק כשמשהו מתחיל להיות בטוח, את כבר מחפשת את הדלת. קראת לזה "חוסר שקט". אבל
-מי שקורא את שלושת הסיפורים רואה לא בריחה — אלא מצפן.
+מי שקורא את שלושת הסיפורים לא רואה בריחה - הוא רואה מצפן.
 
 **❌ nugget:** תאמיני בעצמך והכל אפשרי.
 **✅ nugget:** מה שנראה לך כמו "לא לסיים דברים" הוא היכולת לדעת מתי דבר כבר נתן לך את כל מה שהיה לו לתת.

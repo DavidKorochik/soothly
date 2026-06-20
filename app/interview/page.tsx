@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
-import { chapterLabel, progress } from "@/lib/interview/chapters";
+import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
 
@@ -82,24 +82,59 @@ export default function InterviewPage() {
     const sid = res.headers.get("X-Session") || undefined;
 
     setMessages((m) => [...m, { role: "assistant", content: "" }]);
+
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let text = "";
-    let first = true;
-    for (;;) {
-      const { done: rdone, value } = await reader.read();
-      if (rdone) break;
-      if (first) {
-        setThinking(false);
-        first = false;
+    let received = "";
+    let shown = 0;
+    let streamDone = false;
+    let firstShown = false;
+
+    // Pump the network in the background; reveal it on a steady cadence below so the question reads
+    // like someone typing to you, not like uneven network bursts.
+    const pump = (async () => {
+      for (;;) {
+        const { done: rdone, value } = await reader.read();
+        if (rdone) break;
+        received += decoder.decode(value, { stream: true });
       }
-      text += decoder.decode(value, { stream: true });
-      setMessages((m) => {
-        const c = m.slice();
-        c[c.length - 1] = { role: "assistant", content: text };
-        return c;
-      });
-    }
+      streamDone = true;
+    })();
+
+    await new Promise<void>((resolve) => {
+      // A CONSTANT pace is the point: a gap-proportional catch-up dumps each network burst then
+      // stalls until the next one (the "fast then stuck" feel). A steady rate lets one burst's
+      // backlog flow into the next, so it reads continuously. Drain the tail only once the model is done.
+      const STREAM_CPS = 26;
+      const DRAIN_CPS = 55;
+      let last = performance.now();
+      const tick = (now: number) => {
+        const dt = (now - last) / 1000;
+        last = now;
+        if (shown < received.length) {
+          const cps = streamDone ? DRAIN_CPS : STREAM_CPS;
+          shown = Math.min(received.length, shown + Math.max(1, cps * dt));
+          if (!firstShown) {
+            setThinking(false);
+            firstShown = true;
+          }
+          const text = received.slice(0, Math.floor(shown));
+          setMessages((m) => {
+            const c = m.slice();
+            c[c.length - 1] = { role: "assistant", content: text };
+            return c;
+          });
+        }
+        if (streamDone && shown >= received.length) {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+
+    await pump;
     setBusy(false);
     setThinking(false);
     return { engine: nextEngine, done, sessionId: sid };
@@ -121,7 +156,7 @@ export default function InterviewPage() {
       if (r.sessionId) setSessionId(r.sessionId);
       setEngine(r.engine);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. נסו לרענן ולהתחיל שוב." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב." }]);
     }
   }
 
@@ -155,7 +190,7 @@ export default function InterviewPage() {
       setEngine(r.engine);
       if (r.done) setStep("done");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. נסו לשלוח שוב." }]);
+      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. אפשר לשלוח שוב." }]);
     }
   }
 
@@ -181,7 +216,9 @@ export default function InterviewPage() {
     );
   }
 
-  const pct = Math.round(progress(engine.phase, engine.index) * 100);
+  const fills = chapterFills(engine.phase, engine.index);
+  const label = chapterLabel(engine.phase, engine.index);
+  const nearGoal = progress(engine.phase, engine.index) >= 0.8;
   const voiceActive = voice.status === "requesting" || voice.status === "recording" || voice.status === "transcribing";
 
   function onVoiceTranscript(text: string) {
@@ -199,16 +236,22 @@ export default function InterviewPage() {
 
   return (
     <main className="relative flex min-h-dvh flex-col">
-      <div className="fixed inset-x-0 top-0 z-10">
-        <div className="h-[3px] w-full bg-rule/40">
-          <div
-            className="h-full bg-gold-line transition-[width] duration-700 ease-out"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between px-5 pt-3">
-          <span className="font-sans text-[11px] tracking-[0.2em] text-muted">{chapterLabel(engine.phase, engine.index)}</span>
-          {!busy && <span className="font-sans text-[11px] text-muted/70">נשמר ✓</span>}
+      <div className="fixed inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
+        <div className="mx-auto max-w-2xl px-6 pb-3 pt-5">
+          <div className="mb-2 flex items-baseline justify-between">
+            <span key={label} className="soothly-fade font-sans text-sm tracking-[0.04em] text-ink-soft">{label}</span>
+            <span className="font-sans text-[11px] text-muted/70">{nearGoal ? "כמעט סיימנו" : !busy ? "נשמר ✓" : ""}</span>
+          </div>
+          <div className="flex gap-1.5">
+            {fills.map((f, i) => (
+              <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-rule/50">
+                <div
+                  className="h-full rounded-full bg-gold-line transition-[width] duration-700 ease-out"
+                  style={{ width: `${Math.round(f * 100)}%` }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -220,7 +263,7 @@ export default function InterviewPage() {
         )}
 
         {thinking && !assistantText ? (
-          <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="חושב על מה שסיפרת" />
+          <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="קוראים את מה שסיפרת" />
         ) : (
           <h2 key={messages.length} className="soothly-rise font-serif text-2xl leading-relaxed text-ink sm:text-[28px] sm:leading-relaxed">
             {assistantText}
@@ -243,7 +286,7 @@ export default function InterviewPage() {
             }}
             disabled={busy || voiceActive}
             rows={1}
-            placeholder="כתוב/י כמה שבא לך, גם שורה אחת מספיקה…"
+            placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
             className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
             style={{ minHeight: "2rem" }}
             autoFocus
@@ -310,10 +353,10 @@ function Welcome({
           </div>
         )}
 
-        <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר הדפוסים</p>
+        <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר אישי</p>
         <h1 className="mt-4 font-serif text-4xl leading-tight">ספר החיים שלך, בקולך</h1>
         <p className="mt-5 font-sans leading-relaxed text-ink-soft">
-          הסיפורים שלך נשארים שלך - רק את/ה תחליט/י עם מי לחלוק את הספר.
+          הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק - רק שלך.
         </p>
         <p className="mt-2 font-sans text-sm leading-relaxed text-muted">
           בערך 20 דקות, שאלה אחת בכל פעם. אין תשובות נכונות, ואפשר לדלג על כל שאלה.
@@ -331,7 +374,7 @@ function Welcome({
           </label>
 
           <div>
-            <span className="mb-2 block font-sans text-sm text-muted">לשון פנייה</span>
+            <span className="mb-2 block font-sans text-sm text-muted">איך לפנות אליך?</span>
             <div className="flex gap-3">
               {([["female", "נקבה"], ["male", "זכר"]] as const).map(([g, label]) => (
                 <button
@@ -351,7 +394,7 @@ function Welcome({
           </div>
 
           <label className="block">
-            <span className="mb-2 block font-sans text-sm text-muted">בן/בת כמה את/ה?</span>
+            <span className="mb-2 block font-sans text-sm text-muted">מה הגיל שלך?</span>
             <input
               type="number"
               min={1}

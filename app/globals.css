@@ -22,6 +22,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
 /* One gentle, decelerating reveal for each new question; a slow breathing dot while it listens. */
 @keyframes soothly-rise {
   from { opacity: 0; transform: translateY(10px); }

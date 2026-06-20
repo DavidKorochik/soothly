@@ -5,6 +5,7 @@ import { evaluateAnswer } from "@/lib/interview/evaluate";
 import { decideNext, type EngineState } from "@/lib/interview/engine";
 import { questionAt, PHASE1_LEN, PHASE2_LEN } from "@/lib/interview/spine";
 import { systemFor, directiveFor } from "@/lib/interview/prompt";
+import { chapterLabel } from "@/lib/interview/chapters";
 import { saveTranscript, logFunnel, completeSession } from "@/lib/db/queries";
 
 export const runtime = "nodejs";
@@ -66,9 +67,20 @@ export async function POST(req: Request) {
     await completeSession(sessionId);
   }
 
+  let directive = directiveFor(decision);
+  if (decision.action === "advance") {
+    if (chapterLabel(engine.phase, engine.index) !== chapterLabel(decision.state.phase, decision.state.index)) {
+      directive +=
+        " The person just finished a part of the conversation - add one short, warm beat acknowledging the gentle move into a new part before asking (never name it like a form section).";
+    }
+    if (decision.state.phase === 2 && decision.state.index >= PHASE2_LEN - 2) {
+      directive += " The end is near - you may let them gently feel that we are almost done.";
+    }
+  }
+
   const result = streamText({
     model: anthropic("claude-sonnet-4-6"),
-    system: systemFor(gender, name, directiveFor(decision)),
+    system: systemFor(gender, name, directive),
     messages,
     temperature: 0.7,
   });
