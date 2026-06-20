@@ -35,3 +35,9 @@ test("buildHtml: pulls the stylesheet from book_template.html", () => {
   const html = buildHtml(book, "נועה");
   assert.ok(html.includes("Frank Ruhl Libre")); // proves the designer's <head> was inlined
 });
+
+test("buildHtml: converts em/en dashes in content to a plain hyphen", () => {
+  const html = buildHtml({ ...book, closing: "סיום — עם קו ארוך – ועוד." }, "נועה");
+  assert.ok(html.includes("סיום - עם קו ארוך - ועוד."));
+  assert.ok(!html.includes("סיום — עם")); // the content's dashes were normalized
+});

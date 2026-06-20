@@ -29,7 +29,7 @@ export default function SynthesizePage() {
       });
       setResult(await res.json());
     } catch {
-      setResult({ status: "error", message: "החיבור נכשל. נסה/י שוב." });
+      setResult({ status: "error", message: "החיבור נכשל, נסו שוב." });
     } finally {
       setLoading(false);
     }
@@ -37,8 +37,8 @@ export default function SynthesizePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
-      <p className="font-sans text-xs tracking-[0.28em] text-muted">הרמת מבחן · פנימי</p>
-      <h1 className="mt-3 mb-8 font-serif text-3xl">רקימת ספר מתוך תמלול</h1>
+      <p className="font-sans text-xs tracking-[0.28em] text-muted">כלי פנימי · בדיקה</p>
+      <h1 className="mt-3 mb-8 font-serif text-3xl">יצירת ספר מתוך תמלול</h1>
 
       <form onSubmit={onSubmit} className="space-y-5">
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -61,7 +61,7 @@ export default function SynthesizePage() {
             name="answers"
             required
             rows={16}
-            placeholder="הדבק/י כאן את התשובות המלאות…"
+            placeholder="הדביקו כאן את כל התשובות…"
             className={`${inputClass} resize-y font-sans leading-relaxed`}
           />
         </Field>
@@ -71,7 +71,7 @@ export default function SynthesizePage() {
           disabled={loading}
           className="rounded-full bg-ink px-7 py-3 font-sans text-sm text-paper transition hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "רוקמים את הספר…" : "צור ספר"}
+          {loading ? "כותבים את הספר…" : "צור ספר"}
         </button>
       </form>
 
@@ -92,7 +92,7 @@ function ResultView({ result }: { result: Result }) {
           rel="noreferrer"
           className="mt-4 inline-block font-sans text-sm text-gold underline underline-offset-4"
         >
-          פתח/י את הספר (PDF) ↗
+          פתחו את הספר (PDF) ↗
         </a>
       </div>
     );

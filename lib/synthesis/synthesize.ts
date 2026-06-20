@@ -5,7 +5,7 @@ import { parseBook, type Book } from "./parse";
 
 export async function synthesizeBook(input: SynthesisInput): Promise<Book> {
   const { text } = await generateText({
-    model: anthropic("claude-opus-4-8"),
+    model: anthropic("claude-sonnet-4-6"),
     system:
       "אתה כותב את הספר בעברית בלבד. הפק אך ורק את הספר עם הסמנים (markers) בדיוק כפי שהוגדר — בלי הקדמה, בלי הסברים, בלי טקסט באנגלית.",
     prompt: buildSynthesisPrompt(input),

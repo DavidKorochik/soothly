@@ -97,10 +97,8 @@
     font-size:18px;line-height:2.05;color:var(--ink);
     margin:0 0 18px;
   }
-  .opening .lead::first-letter{
-    font-family:"Suez One",serif;
-    font-size:58px;float:right;line-height:.8;
-    margin:6px 0 0 10px;color:var(--gold);
+  .opening .lead{
+    font-size:19px;
   }
 
   /* ---------- CHAPTER ---------- */
@@ -164,15 +162,28 @@
   }
 
   /* ---------- PRINT ---------- */
-  @page{ size:148mm 210mm; margin:0; }
+  /* page margins give every printed sheet (incl. mid-chapter breaks) a safe top/bottom inset */
+  @page{ size:148mm 210mm; margin:16mm 0; }
   @media print{
-    html,body{background:#fff;}
+    /* full-bleed warm paper on every page — overflow never lands on white */
+    html,body{
+      background:var(--paper);
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
     .toolbar,.hint{display:none !important;}
     .page{
-      margin:0;box-shadow:none;width:148mm;min-height:210mm;
-      page-break-after:always;break-after:page;
+      margin:0;box-shadow:none;width:148mm;padding:0 22mm;
+      break-before:page;page-break-before:always;
     }
-    .page:last-child{page-break-after:auto;}
+    .page:first-child{break-before:auto;page-break-before:avoid;}
+    .cover{min-height:178mm;}
+    /* prose holds variable-length synthesized text: flow from the top, grow, and paginate */
+    .opening,.closing,.chapter{display:block;min-height:178mm;}
+    /* keep callouts and headings whole across page breaks */
+    .nugget{break-inside:avoid;page-break-inside:avoid;}
+    .ch-head{break-after:avoid;page-break-after:avoid;}
+    .chapter p{orphans:2;widows:2;}
   }
 </style>
 </head>
