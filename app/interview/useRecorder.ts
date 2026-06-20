@@ -10,8 +10,8 @@ type State = { status: RecorderStatus; errorMessage: string | null };
 // Hard stop well before Vercel's ~4.5MB request-body limit; the UI nudges as it approaches.
 export const MAX_RECORD_SECONDS = 180;
 
-export function useRecorder(opts: { sessionId?: string; onTranscript: (text: string) => void }) {
-  const { sessionId, onTranscript } = opts;
+export function useRecorder(opts: { sessionId?: string; questionKey?: string; onTranscript: (text: string) => void }) {
+  const { sessionId, questionKey, onTranscript } = opts;
   const [state, setState] = useState<State>({ status: "idle", errorMessage: null });
   const [seconds, setSeconds] = useState(0);
 
@@ -46,6 +46,7 @@ export function useRecorder(opts: { sessionId?: string; onTranscript: (text: str
         const form = new FormData();
         form.append("audio", blob, "answer");
         if (sessionId) form.append("sessionId", sessionId);
+        if (questionKey) form.append("questionKey", questionKey);
         const res = await fetch("/api/interview/transcribe", { method: "POST", body: form });
         const json = (await res.json().catch(() => null)) as { text?: string; error?: string } | null;
         if (!res.ok || !json || typeof json.text !== "string") {
@@ -58,7 +59,7 @@ export function useRecorder(opts: { sessionId?: string; onTranscript: (text: str
         set("error", "אין חיבור כרגע. אפשר לנסות שוב עוד רגע, או להקליד בינתיים.");
       }
     },
-    [sessionId, set],
+    [sessionId, questionKey, set],
   );
 
   const stop = useCallback(() => {

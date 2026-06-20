@@ -26,12 +26,16 @@ export async function POST(req: Request) {
   const session = typeof rawSessionId === "string" ? SessionSchema.safeParse(rawSessionId) : null;
   const sessionId = session?.success ? session.data : undefined;
 
+  const rawQuestionKey = form.get("questionKey");
+  const questionKey = typeof rawQuestionKey === "string" && rawQuestionKey ? rawQuestionKey : undefined;
+
   try {
     const { text } = await transcribeAudio(audio);
     if (sessionId) {
       await logFunnel({
         sessionId,
         event: "voice_transcribed",
+        questionKey,
         meta: { bytes: audio.size, chars: text.length },
       }).catch(() => {});
     }
@@ -42,6 +46,7 @@ export async function POST(req: Request) {
         await logFunnel({
           sessionId,
           event: "voice_transcribe_failed",
+          questionKey,
           meta: { code: error.code },
         }).catch(() => {});
       }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
+import { questionAt } from "@/lib/interview/spine";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
@@ -301,7 +302,13 @@ export default function InterviewPage() {
             </button>
             <div className="flex items-center gap-3">
               {voiceSupported && (
-                <MicButton sessionId={sessionId} disabled={busy} onTranscript={onVoiceTranscript} onState={setVoice} />
+                <MicButton
+                  sessionId={sessionId}
+                  questionKey={questionAt(engine.phase, engine.index)?.key}
+                  disabled={busy}
+                  onTranscript={onVoiceTranscript}
+                  onState={setVoice}
+                />
               )}
               <button
                 onClick={() => void send()}
