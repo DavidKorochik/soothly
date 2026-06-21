@@ -6,6 +6,7 @@ import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
 import PaperField from "@/app/components/PaperField";
+import BrandMark from "@/app/components/BrandMark";
 
 // Dictation augments typed text rather than replacing it: append after a space, or a new line
 // when the existing text already closes a sentence (Hebrew has no capitals to mark the seam).
@@ -227,6 +228,7 @@ export default function InterviewPage() {
       <main className="flex min-h-dvh items-center justify-center px-6">
         <PaperField surface="full" />
         <div className="paper-content soothly-fade max-w-prose text-center">
+          <BrandMark className="mx-auto mb-7 h-9 w-auto" />
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
           <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">הספר של {intake.name}</h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
@@ -361,6 +363,7 @@ function Welcome({
     <main className="flex min-h-dvh items-center justify-center px-6 py-16">
       <PaperField surface="full" />
       <div className="paper-content soothly-rise w-full max-w-md">
+        <BrandMark className="mb-9 block h-9 w-auto" />
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
