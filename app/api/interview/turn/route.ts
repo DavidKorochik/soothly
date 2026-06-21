@@ -83,6 +83,10 @@ export async function POST(req: Request) {
     system: systemFor(gender, name, directive),
     messages,
     temperature: 0.7,
+    // A turn is one short message; cap it so a runaway generation can't stall the reveal. A stalled
+    // stream is caught by the client watchdog and surfaced as a retry - not bounded with the SDK's
+    // chunkMs, which would close a mid-stream stall as a clean 200 and render a truncated question.
+    maxOutputTokens: 400,
     onError: ({ error }) => console.error("[interview/turn] model stream failed", { sessionId, error }),
   });
 

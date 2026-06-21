@@ -23,11 +23,20 @@ export async function evaluateAnswer(question: string, answer: string): Promise<
       system: loadPrompt(),
       prompt: `שאלה: ${question}\n\nתשובה: ${answer}`,
       temperature: 0,
+      // This call gates the next question - keep it from stalling the turn: cap output, retry once
+      // (not the SDK's default of twice), and bound it with a real abort so a slow model can't hang
+      // it. generateObject ignores the `timeout` option (only generateText/streamText honor it), so
+      // a timeout MUST go through abortSignal; the abort surfaces as an error and fails OPEN below.
+      maxOutputTokens: 200,
+      maxRetries: 1,
+      abortSignal: AbortSignal.timeout(8000),
     });
     return { depth: object.depth, hasScene: object.has_scene, hasFeeling: object.has_feeling };
   } catch (error) {
-    // Fail OPEN: a scoring hiccup must never trap someone in follow-ups - treat as good and advance.
-    console.error("answer eval failed - advancing", error);
+    // Fail OPEN: a scoring hiccup (including a timeout) must never trap someone in follow-ups - treat
+    // as good and advance. Name the failure mode so a sustained degradation is visible, not silent.
+    const kind = error instanceof Error ? error.name : "Unknown";
+    console.error(`answer eval failed (${kind}) - advancing fail-open`, error);
     return { depth: 5, hasScene: true, hasFeeling: true };
   }
 }

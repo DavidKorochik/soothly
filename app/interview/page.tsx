@@ -20,6 +20,15 @@ function appendDictation(prev: string, text: string): string {
   return /[.!?…]$/.test(a) ? `${a}\n${text}` : `${a} ${text}`;
 }
 
+// Mimic spoken cadence: hold the reveal briefly after a punctuation mark that marks a verbal stop -
+// longer at a sentence end or line break than at a mid-sentence comma.
+function speechPauseMs(ch: string): number {
+  if (ch === "\n") return 260;
+  if (".!?…".includes(ch)) return 150;
+  if (",;:".includes(ch)) return 90;
+  return 0;
+}
+
 type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender; age: string };
 type Msg = { role: "assistant" | "user"; content: string };
@@ -74,90 +83,125 @@ export default function InterviewPage() {
   async function streamTurn(url: string, body: object) {
     setBusy(true);
     setThinking(true);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok || !res.body) {
+
+    // A stalled turn (server hung before the first byte, or a proxy that holds the socket open with
+    // no data) must never freeze the UI. Abort if no NETWORK byte arrives for STALL_MS - generous
+    // enough to cover the legit pre-stream work (answer scoring + the model's first token), tight
+    // enough to rescue a real hang. Byte-based, never reveal-based, so the slow typewriter can't trip it.
+    const STALL_MS = 25000;
+    const ac = new AbortController();
+    let lastByteAt = performance.now();
+    const watchdog = setInterval(() => {
+      if (performance.now() - lastByteAt > STALL_MS) ac.abort();
+    }, 2000);
+
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: ac.signal,
+      });
+      if (!res.ok || !res.body) throw new Error("turn failed");
+      const nextEngine = JSON.parse(res.headers.get("X-Engine") || "null") as EngineState;
+      const done = res.headers.get("X-Done") === "1";
+      const sid = res.headers.get("X-Session") || undefined;
+
+      setMessages((m) => [...m, { role: "assistant", content: "" }]);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let received = "";
+      let shown = 0;
+      let streamDone = false;
+      let firstShown = false;
+      let pumpError: unknown = null;
+      lastByteAt = performance.now();
+
+      // Pump the network in the background; reveal it on a steady cadence below so the question reads
+      // like someone typing to you, not like uneven network bursts.
+      const pump = (async () => {
+        try {
+          for (;;) {
+            const { done: rdone, value } = await reader.read();
+            if (rdone) break;
+            received += decoder.decode(value, { stream: true });
+            lastByteAt = performance.now();
+          }
+        } catch (e) {
+          pumpError = e;
+        } finally {
+          // Always release the reveal loop below, even on a mid-stream drop, so the UI surfaces the
+          // error instead of hanging forever with the input disabled.
+          streamDone = true;
+        }
+      })();
+
+      await new Promise<void>((resolve) => {
+        // A CONSTANT pace is the point: a gap-proportional catch-up dumps each network burst then
+        // stalls until the next one (the "fast then stuck" feel). One steady rate for the whole
+        // reveal - the same after the model finishes as during - so the cadence never shifts under
+        // the reader.
+        const REVEAL_CPS = 20;
+        let last = performance.now();
+        let pausedUntil = 0;
+        // A backgrounded tab pauses requestAnimationFrame, so a turn that finishes while the user is
+        // away can't keep painting. Snap to the full text on hide so they return to the finished
+        // question, not a half-typed one; resync the clock on show to avoid a dt spike.
+        const onVisibility = () => {
+          if (document.hidden) shown = received.length;
+          else last = performance.now();
+        };
+        document.addEventListener("visibilitychange", onVisibility);
+        const finish = () => {
+          document.removeEventListener("visibilitychange", onVisibility);
+          resolve();
+        };
+        const tick = (now: number) => {
+          const dt = (now - last) / 1000;
+          last = now;
+          if (now >= pausedUntil && shown < received.length) {
+            const before = Math.floor(shown);
+            // Accumulate fractional progress: a per-frame floor of 1 char would pin the reveal to the
+            // refresh rate (~60-120 cps) and make REVEAL_CPS below that a no-op.
+            shown = Math.min(received.length, shown + REVEAL_CPS * dt);
+            const after = Math.floor(shown);
+            if (!firstShown) {
+              setThinking(false);
+              firstShown = true;
+            }
+            const text = received.slice(0, after);
+            setMessages((m) => {
+              const c = m.slice();
+              c[c.length - 1] = { role: "assistant", content: text };
+              return c;
+            });
+            // Breathe after a just-revealed stop so the cadence feels spoken, not mechanical.
+            if (after > before) pausedUntil = now + speechPauseMs(received[after - 1]);
+          }
+          if (streamDone && shown >= received.length) {
+            finish();
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+
+      await pump;
+      // A failed turn shows up two ways: the AI SDK swallows a model error into a 200 with an empty
+      // body (empty stream), and a dropped/aborted read rejects (pumpError). Either way the turn
+      // failed - surface it via the caller's catch instead of rendering a blank or hanging.
+      if (pumpError) throw pumpError;
+      if (!received.trim()) throw new Error("empty stream");
+      return { engine: nextEngine, done, sessionId: sid };
+    } finally {
+      // Re-enable the input on every exit - success, error, or abort - so a failed fetch can never
+      // leave the controls stuck disabled.
+      clearInterval(watchdog);
       setBusy(false);
       setThinking(false);
-      throw new Error("turn failed");
     }
-    const nextEngine = JSON.parse(res.headers.get("X-Engine") || "null") as EngineState;
-    const done = res.headers.get("X-Done") === "1";
-    const sid = res.headers.get("X-Session") || undefined;
-
-    setMessages((m) => [...m, { role: "assistant", content: "" }]);
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let received = "";
-    let shown = 0;
-    let streamDone = false;
-    let firstShown = false;
-    let pumpError: unknown = null;
-
-    // Pump the network in the background; reveal it on a steady cadence below so the question reads
-    // like someone typing to you, not like uneven network bursts.
-    const pump = (async () => {
-      try {
-        for (;;) {
-          const { done: rdone, value } = await reader.read();
-          if (rdone) break;
-          received += decoder.decode(value, { stream: true });
-        }
-      } catch (e) {
-        pumpError = e;
-      } finally {
-        // Always release the reveal loop below, even on a mid-stream transport drop, so the UI
-        // surfaces the error instead of hanging forever with the input disabled.
-        streamDone = true;
-      }
-    })();
-
-    await new Promise<void>((resolve) => {
-      // A CONSTANT pace is the point: a gap-proportional catch-up dumps each network burst then
-      // stalls until the next one (the "fast then stuck" feel). A steady rate lets one burst's
-      // backlog flow into the next, so it reads continuously. Drain the tail only once the model is done.
-      const STREAM_CPS = 26;
-      const DRAIN_CPS = 55;
-      let last = performance.now();
-      const tick = (now: number) => {
-        const dt = (now - last) / 1000;
-        last = now;
-        if (shown < received.length) {
-          const cps = streamDone ? DRAIN_CPS : STREAM_CPS;
-          shown = Math.min(received.length, shown + Math.max(1, cps * dt));
-          if (!firstShown) {
-            setThinking(false);
-            firstShown = true;
-          }
-          const text = received.slice(0, Math.floor(shown));
-          setMessages((m) => {
-            const c = m.slice();
-            c[c.length - 1] = { role: "assistant", content: text };
-            return c;
-          });
-        }
-        if (streamDone && shown >= received.length) {
-          resolve();
-          return;
-        }
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
-
-    await pump;
-    setBusy(false);
-    setThinking(false);
-    // A failed turn shows up two ways: the AI SDK swallows a model error into a 200 with an empty
-    // body (empty stream), and a transport drop mid-stream rejects the read (pumpError). Either way
-    // the turn failed - surface it via the caller's catch instead of rendering a blank or hanging.
-    if (pumpError) throw pumpError;
-    if (!received.trim()) throw new Error("empty stream");
-    return { engine: nextEngine, done, sessionId: sid };
   }
 
   async function begin(e: React.FormEvent) {

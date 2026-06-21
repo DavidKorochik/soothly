@@ -32,6 +32,9 @@ export async function POST(req: Request) {
     system: systemFor(input.gender, input.name, openingDirective()),
     prompt: "Begin.",
     temperature: 0.7,
+    // Generous cap for the longer opening (greeting + reassurance + first question); still bounds a
+    // runaway. A stalled stream is caught by the client watchdog and surfaced as a retry.
+    maxOutputTokens: 500,
     onError: ({ error }) => console.error("[interview/start] model stream failed", { sessionId, error }),
   });
 
