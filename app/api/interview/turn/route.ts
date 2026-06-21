@@ -83,6 +83,7 @@ export async function POST(req: Request) {
     system: systemFor(gender, name, directive),
     messages,
     temperature: 0.7,
+    onError: ({ error }) => console.error("[interview/turn] model stream failed", { sessionId, error }),
   });
 
   return result.toTextStreamResponse({

@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     system: systemFor(input.gender, input.name, openingDirective()),
     prompt: "Begin.",
     temperature: 0.7,
+    onError: ({ error }) => console.error("[interview/start] model stream failed", { sessionId, error }),
   });
 
   return result.toTextStreamResponse({

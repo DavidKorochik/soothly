@@ -33,6 +33,7 @@ The product is a pipeline: **interview answers → safety check → synthesis �
 - `lib/synthesis/` — `buildSynthesisPrompt()` fills the template, `synthesizeBook()` calls Claude, `parseBook()` turns marker output into a `Book`.
 - `lib/pdf/` — `buildHtml()` builds the document, `renderPdf()` prints it, `browser.ts` resolves the right Chromium per environment.
 - `lib/storage/` — `storePdf()` uploads to Vercel Blob, falls back to local disk when the token is absent.
+- `lib/status/` — `getServiceStatus()` polls the Anthropic (`status.claude.com`) and OpenAI (`status.openai.com`) Statuspage feeds, keying off the specific API components our calls hit, and reduces them to `operational | degraded | down`. **Fail-safe**: a feed error reads as operational (never a false alarm). Served by `app/api/status/route.ts`; surfaced by the global `app/components/ServiceStatusBanner.tsx`.
 - `docs/` — **core IP, not throwaway docs.** The prompts (`synthesis_prompt_v2.md`, `safety_check_prompt.md`) and the designer's `book_template.html` are loaded at runtime, so editing them changes behavior without code changes. The interview question bank and voice-agent spec also live here.
 
 When adding a stage, follow this shape: one focused module under `lib/`, a small set of named exports, prompts/templates kept in `docs/` and loaded at runtime.

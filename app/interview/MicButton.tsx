@@ -9,7 +9,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "
 
 function MicGlyph() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
       <rect x="9" y="3" width="6" height="11" rx="3" />
       <path d="M6 11a6 6 0 0 0 12 0" strokeLinecap="round" />
       <path d="M12 17v3" strokeLinecap="round" />
@@ -48,7 +48,7 @@ export function MicButton({
       aria-label={ariaLabel}
       aria-pressed={recording}
       aria-busy={busy}
-      className={`relative flex h-12 w-12 items-center justify-center rounded-full border transition disabled:opacity-40 ${
+      className={`relative flex h-10 w-10 items-center justify-center rounded-full border transition disabled:opacity-40 ${
         recording ? "border-gold-line bg-gold text-paper" : "border-rule text-ink-soft hover:border-gold-line"
       }`}
     >
@@ -71,17 +71,17 @@ export function MicButton({
 export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState) {
   if (status === "error" && errorMessage) {
     return (
-      <p aria-live="assertive" className="mt-3 font-sans text-xs leading-relaxed text-gold">
+      <p aria-live="assertive" className="mt-6 font-sans text-xs leading-relaxed text-gold">
         {errorMessage}
       </p>
     );
   }
   if (status === "requesting") {
-    return <p aria-live="polite" className="mt-3 font-sans text-xs text-muted">רגע, פותחים את המיקרופון…</p>;
+    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">רגע, פותחים את המיקרופון…</p>;
   }
   if (status === "recording") {
     return (
-      <p aria-live="polite" className="mt-3 font-sans text-xs leading-relaxed text-muted">
+      <p aria-live="polite" className="mt-6 font-sans text-xs leading-relaxed text-muted">
         <span className="tabular-nums text-ink-soft">{fmt(seconds)}</span> · מקשיבים. דברו כמה שבא לכם.
         {seconds >= MAX_RECORD_SECONDS - 30 && (
           <span className="mt-1 block text-gold">אפשר לעצור ולהמשיך בכתב, או להקליט עוד רגע.</span>
@@ -90,10 +90,10 @@ export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState)
     );
   }
   if (status === "transcribing") {
-    return <p aria-live="polite" className="mt-3 font-sans text-xs text-muted">מתמללים…</p>;
+    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">מתמללים…</p>;
   }
   return (
-    <p className="mt-3 font-sans text-xs leading-relaxed text-muted">
+    <p className="mt-6 font-sans text-xs leading-relaxed text-muted">
       אפשר גם לדבר במקום לכתוב. ההקלטה נשלחת לתמלול בלבד ונמחקת מיד אחרי - הסיפורים שלך נשארים שלך.
     </p>
   );

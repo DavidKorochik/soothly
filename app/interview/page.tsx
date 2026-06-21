@@ -1,11 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
 import { questionAt } from "@/lib/interview/spine";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
+import PaperField from "@/app/components/PaperField";
+import BrandMark from "@/app/components/BrandMark";
+
+// Layout effect on the client so the textarea is resized before paint (no flicker); a plain
+// effect on the server, where useLayoutEffect would only warn and there is nothing to measure.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // Dictation augments typed text rather than replacing it: append after a space, or a new line
 // when the existing text already closes a sentence (Hebrew has no capitals to mark the seam).
@@ -57,13 +63,14 @@ export default function InterviewPage() {
     if (step === "done") localStorage.removeItem(STORAGE_KEY);
   }, [step, intake, sessionId, engine, messages]);
 
-  function growInput() {
+  // Grow the answer box to fit its content on every change - typing, paste, dictation, or reset -
+  // so the whole answer stays visible instead of scrolling one line at a time inside a short box.
+  useIsoLayoutEffect(() => {
     const el = taRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = `${el.scrollHeight}px`;
-    }
-  }
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   async function streamTurn(url: string, body: object) {
     setBusy(true);
@@ -90,16 +97,24 @@ export default function InterviewPage() {
     let shown = 0;
     let streamDone = false;
     let firstShown = false;
+    let pumpError: unknown = null;
 
     // Pump the network in the background; reveal it on a steady cadence below so the question reads
     // like someone typing to you, not like uneven network bursts.
     const pump = (async () => {
-      for (;;) {
-        const { done: rdone, value } = await reader.read();
-        if (rdone) break;
-        received += decoder.decode(value, { stream: true });
+      try {
+        for (;;) {
+          const { done: rdone, value } = await reader.read();
+          if (rdone) break;
+          received += decoder.decode(value, { stream: true });
+        }
+      } catch (e) {
+        pumpError = e;
+      } finally {
+        // Always release the reveal loop below, even on a mid-stream transport drop, so the UI
+        // surfaces the error instead of hanging forever with the input disabled.
+        streamDone = true;
       }
-      streamDone = true;
     })();
 
     await new Promise<void>((resolve) => {
@@ -138,6 +153,11 @@ export default function InterviewPage() {
     await pump;
     setBusy(false);
     setThinking(false);
+    // A failed turn shows up two ways: the AI SDK swallows a model error into a 200 with an empty
+    // body (empty stream), and a transport drop mid-stream rejects the read (pumpError). Either way
+    // the turn failed - surface it via the caller's catch instead of rendering a blank or hanging.
+    if (pumpError) throw pumpError;
+    if (!received.trim()) throw new Error("empty stream");
     return { engine: nextEngine, done, sessionId: sid };
   }
 
@@ -157,7 +177,7 @@ export default function InterviewPage() {
       if (r.sessionId) setSessionId(r.sessionId);
       setEngine(r.engine);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש בהתחלה. אפשר לרענן ולהתחיל שוב." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
     }
   }
 
@@ -178,7 +198,6 @@ export default function InterviewPage() {
     const convo: Msg[] = [...messages, { role: "user", content: answer }];
     setMessages(convo);
     setInput("");
-    if (taRef.current) taRef.current.style.height = "auto";
     try {
       const r = await streamTurn("/api/interview/turn", {
         sessionId,
@@ -191,7 +210,13 @@ export default function InterviewPage() {
       setEngine(r.engine);
       if (r.done) setStep("done");
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "החיבור נקטע. אפשר לשלוח שוב." }]);
+      // Drop the empty assistant placeholder streamTurn added before the failure so it does not
+      // linger in state (and localStorage) ahead of the error message.
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        const base = last?.role === "assistant" && !last.content.trim() ? m.slice(0, -1) : m;
+        return [...base, { role: "assistant", content: "משהו השתבש בשליחה. אפשר לנסות שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }];
+      });
     }
   }
 
@@ -206,7 +231,9 @@ export default function InterviewPage() {
   if (step === "done") {
     return (
       <main className="flex min-h-dvh items-center justify-center px-6">
-        <div className="soothly-fade max-w-prose text-center">
+        <PaperField surface="full" />
+        <div className="paper-content soothly-fade max-w-prose text-center">
+          <BrandMark className="mx-auto mb-7 h-9 w-auto" />
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
           <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">הספר של {intake.name}</h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
@@ -224,8 +251,8 @@ export default function InterviewPage() {
 
   function onVoiceTranscript(text: string) {
     setInput((prev) => appendDictation(prev, text));
+    // The layout effect resizes the box; this only restores focus and drops the caret at the end.
     requestAnimationFrame(() => {
-      growInput();
       const el = taRef.current;
       if (el) {
         el.focus();
@@ -236,7 +263,8 @@ export default function InterviewPage() {
   }
 
   return (
-    <main className="relative flex min-h-dvh flex-col">
+    <main className="relative isolate flex min-h-dvh flex-col">
+      <PaperField surface="focused" />
       <div className="fixed inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
         <div className="mx-auto max-w-2xl px-6 pb-3 pt-5">
           <div className="mb-2 flex items-baseline justify-between">
@@ -256,7 +284,7 @@ export default function InterviewPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-24">
+      <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-6 py-24">
         {lastUser && (
           <p className="soothly-fade mb-8 border-r-2 border-rule pr-4 font-serif text-base leading-relaxed text-muted/80">
             {lastUser.content}
@@ -275,10 +303,7 @@ export default function InterviewPage() {
           <textarea
             ref={taRef}
             value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              growInput();
-            }}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -288,7 +313,7 @@ export default function InterviewPage() {
             disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
-            className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
+            className="max-h-[45vh] w-full resize-none overflow-y-auto bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
             style={{ minHeight: "2rem" }}
             autoFocus
           />
@@ -313,10 +338,10 @@ export default function InterviewPage() {
               <button
                 onClick={() => void send()}
                 disabled={busy || voiceActive || !input.trim()}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-ink text-paper transition hover:opacity-90 disabled:opacity-30"
                 aria-label="המשך"
               >
-                <span className="text-xl leading-none">←</span>
+                <span className="text-lg leading-none">←</span>
               </button>
             </div>
           </div>
@@ -344,7 +369,9 @@ function Welcome({
 }) {
   return (
     <main className="flex min-h-dvh items-center justify-center px-6 py-16">
-      <div className="soothly-fade w-full max-w-md">
+      <PaperField surface="full" />
+      <div className="paper-content soothly-rise w-full max-w-md">
+        <BrandMark className="mb-9 block h-9 w-auto" />
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
