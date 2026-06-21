@@ -146,7 +146,9 @@ export default function InterviewPage() {
           last = now;
           if (shown < received.length) {
             const cps = streamDone ? DRAIN_CPS : STREAM_CPS;
-            shown = Math.min(received.length, shown + Math.max(1, cps * dt));
+            // Accumulate fractional progress: a per-frame floor of 1 char would pin the reveal to the
+            // refresh rate (~60-120 cps) and make STREAM_CPS/DRAIN_CPS below that a no-op.
+            shown = Math.min(received.length, shown + cps * dt);
             if (!firstShown) {
               setThinking(false);
               firstShown = true;
