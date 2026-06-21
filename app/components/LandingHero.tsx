@@ -25,7 +25,7 @@ export default function LandingHero() {
     <div className={`paper-content max-w-prose text-center${leaving ? " soothly-leave" : ""}`}>
       <BrandMark className="mx-auto mb-7 h-9 w-auto" />
       <p className="mb-6 font-sans text-xs tracking-[0.28em] text-muted">ספר אישי</p>
-      <h1 className="mb-5 font-serif text-4xl leading-tight sm:text-5xl">כאן נולד הספר שלך</h1>
+      <h1 className="mb-5 font-display font-bold text-4xl leading-[1.1] sm:text-5xl">כאן נולד הספר שלך</h1>
       <p className="mb-8 font-sans text-lg leading-relaxed text-ink-soft">
         מקום שקט לספר את החיים שלך - ולגלות את מה שרק מבחוץ אפשר לראות.
       </p>

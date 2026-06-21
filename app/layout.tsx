@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Frank_Ruhl_Libre, Heebo } from "next/font/google";
+import { David_Libre, Frank_Ruhl_Libre, Heebo } from "next/font/google";
 import "./globals.css";
 
 const frank = Frank_Ruhl_Libre({
@@ -12,6 +12,14 @@ const heebo = Heebo({
   subsets: ["hebrew", "latin"],
   weight: ["400", "500", "700"],
   variable: "--font-heebo",
+});
+
+// David Libre (Ismar David, 1954): a warm, calligraphic Hebrew serif used only at 700 for the
+// ceremonial display lines — it earns presence at bold and collapses toward a sans when lighter.
+const david = David_Libre({
+  subsets: ["hebrew", "latin"],
+  weight: ["700"],
+  variable: "--font-david",
 });
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -42,7 +50,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="he" dir="rtl" className={`${frank.variable} ${heebo.variable}`}>
+    <html lang="he" dir="rtl" className={`${frank.variable} ${heebo.variable} ${david.variable}`}>
       <body>{children}</body>
     </html>
   );

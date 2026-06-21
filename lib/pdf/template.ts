@@ -2,6 +2,22 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Book, Chapter } from "../synthesis/parse";
 
+// Inline each self-hosted woff2 as a base64 data URL so the rendered PDF carries its own Hebrew
+// glyphs. Prod renders on serverless Chromium (no system fonts) and the relative fonts/ paths don't
+// resolve under setContent — without this the keepsake risks blank/tofu text. A missing file throws
+// here (fail loud at build) rather than degrading to tofu silently.
+function inlineFonts(css: string): string {
+  // Match any self-hosted fonts/ url (not just .woff2) so an un-inlinable format fails loud here
+  // rather than surviving as a relative path that silently 404s to tofu under setContent.
+  return css.replace(/url\(\s*["']?fonts\/([^"')]+)["']?\s*\)/g, (_m, file: string) => {
+    if (!file.endsWith(".woff2")) {
+      throw new Error(`book_template.html: cannot embed font "${file}" — only .woff2 is inlined`);
+    }
+    const buf = fs.readFileSync(path.join(process.cwd(), "docs", "fonts", file));
+    return `url(data:font/woff2;base64,${buf.toString("base64")})`;
+  });
+}
+
 // Single-source the design: pull the <head> (fonts + full stylesheet) straight from the
 // designer's book_template.html, and generate only the body sections from synthesized content.
 let head: string | null = null;
@@ -10,7 +26,7 @@ function templateHead(): string {
   const file = fs.readFileSync(path.join(process.cwd(), "docs", "book_template.html"), "utf8");
   const match = file.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
   if (!match) throw new Error("book_template.html: <head> not found");
-  return (head = match[1]);
+  return (head = inlineFonts(match[1]));
 }
 
 function esc(s: string): string {
