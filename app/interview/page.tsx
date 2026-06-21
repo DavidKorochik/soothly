@@ -18,9 +18,9 @@ function appendDictation(prev: string, text: string): string {
 // Mimic spoken cadence: hold the reveal briefly after a punctuation mark that marks a verbal stop -
 // longer at a sentence end or line break than at a mid-sentence comma.
 function speechPauseMs(ch: string): number {
-  if (ch === "\n") return 420;
-  if (".!?…".includes(ch)) return 280;
-  if (",;:".includes(ch)) return 150;
+  if (ch === "\n") return 260;
+  if (".!?…".includes(ch)) return 150;
+  if (",;:".includes(ch)) return 90;
   return 0;
 }
 
