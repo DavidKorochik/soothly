@@ -126,8 +126,8 @@ export default function InterviewPage() {
         // A CONSTANT pace is the point: a gap-proportional catch-up dumps each network burst then
         // stalls until the next one (the "fast then stuck" feel). A steady rate lets one burst's
         // backlog flow into the next, so it reads continuously. Drain the tail once the model is done.
-        const STREAM_CPS = 44;
-        const DRAIN_CPS = 85;
+        const STREAM_CPS = 20;
+        const DRAIN_CPS = 40;
         let last = performance.now();
         // A backgrounded tab pauses requestAnimationFrame, so a turn that finishes while the user is
         // away can't keep painting. Snap to the full text on hide so they return to the finished
