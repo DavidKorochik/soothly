@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { David_Libre, Frank_Ruhl_Libre, Heebo } from "next/font/google";
 import "./globals.css";
+import ServiceStatusBanner from "./components/ServiceStatusBanner";
 
 const frank = Frank_Ruhl_Libre({
   subsets: ["hebrew", "latin"],
@@ -51,7 +52,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl" className={`${frank.variable} ${heebo.variable} ${david.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ServiceStatusBanner />
+        {children}
+      </body>
     </html>
   );
 }
