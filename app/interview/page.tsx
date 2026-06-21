@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
 import PaperField from "@/app/components/PaperField";
+
+// Layout effect on the client so the textarea is resized before paint (no flicker); a plain
+// effect on the server, where useLayoutEffect would only warn and there is nothing to measure.
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // Dictation augments typed text rather than replacing it: append after a space, or a new line
 // when the existing text already closes a sentence (Hebrew has no capitals to mark the seam).
@@ -57,13 +61,14 @@ export default function InterviewPage() {
     if (step === "done") localStorage.removeItem(STORAGE_KEY);
   }, [step, intake, sessionId, engine, messages]);
 
-  function growInput() {
+  // Grow the answer box to fit its content on every change - typing, paste, dictation, or reset -
+  // so the whole answer stays visible instead of scrolling one line at a time inside a short box.
+  useIsoLayoutEffect(() => {
     const el = taRef.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = `${el.scrollHeight}px`;
-    }
-  }
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
 
   async function streamTurn(url: string, body: object) {
     setBusy(true);
@@ -191,7 +196,6 @@ export default function InterviewPage() {
     const convo: Msg[] = [...messages, { role: "user", content: answer }];
     setMessages(convo);
     setInput("");
-    if (taRef.current) taRef.current.style.height = "auto";
     try {
       const r = await streamTurn("/api/interview/turn", {
         sessionId,
@@ -244,8 +248,8 @@ export default function InterviewPage() {
 
   function onVoiceTranscript(text: string) {
     setInput((prev) => appendDictation(prev, text));
+    // The layout effect resizes the box; this only restores focus and drops the caret at the end.
     requestAnimationFrame(() => {
-      growInput();
       const el = taRef.current;
       if (el) {
         el.focus();
@@ -296,10 +300,7 @@ export default function InterviewPage() {
           <textarea
             ref={taRef}
             value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              growInput();
-            }}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -309,7 +310,7 @@ export default function InterviewPage() {
             disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
-            className="w-full resize-none bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
+            className="max-h-[45vh] w-full resize-none overflow-y-auto bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
             style={{ minHeight: "2rem" }}
             autoFocus
           />
