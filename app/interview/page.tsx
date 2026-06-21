@@ -15,6 +15,15 @@ function appendDictation(prev: string, text: string): string {
   return /[.!?…]$/.test(a) ? `${a}\n${text}` : `${a} ${text}`;
 }
 
+// Mimic spoken cadence: hold the reveal briefly after a punctuation mark that marks a verbal stop -
+// longer at a sentence end or line break than at a mid-sentence comma.
+function speechPauseMs(ch: string): number {
+  if (ch === "\n") return 420;
+  if (".!?…".includes(ch)) return 280;
+  if (",;:".includes(ch)) return 150;
+  return 0;
+}
+
 type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender; age: string };
 type Msg = { role: "assistant" | "user"; content: string };
@@ -129,6 +138,7 @@ export default function InterviewPage() {
         // the reader.
         const REVEAL_CPS = 20;
         let last = performance.now();
+        let pausedUntil = 0;
         // A backgrounded tab pauses requestAnimationFrame, so a turn that finishes while the user is
         // away can't keep painting. Snap to the full text on hide so they return to the finished
         // question, not a half-typed one; resync the clock on show to avoid a dt spike.
@@ -144,20 +154,24 @@ export default function InterviewPage() {
         const tick = (now: number) => {
           const dt = (now - last) / 1000;
           last = now;
-          if (shown < received.length) {
+          if (now >= pausedUntil && shown < received.length) {
+            const before = Math.floor(shown);
             // Accumulate fractional progress: a per-frame floor of 1 char would pin the reveal to the
             // refresh rate (~60-120 cps) and make REVEAL_CPS below that a no-op.
             shown = Math.min(received.length, shown + REVEAL_CPS * dt);
+            const after = Math.floor(shown);
             if (!firstShown) {
               setThinking(false);
               firstShown = true;
             }
-            const text = received.slice(0, Math.floor(shown));
+            const text = received.slice(0, after);
             setMessages((m) => {
               const c = m.slice();
               c[c.length - 1] = { role: "assistant", content: text };
               return c;
             });
+            // Breathe after a just-revealed stop so the cadence feels spoken, not mechanical.
+            if (after > before) pausedUntil = now + speechPauseMs(received[after - 1]);
           }
           if (streamDone && shown >= received.length) {
             finish();
