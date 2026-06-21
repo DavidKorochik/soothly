@@ -204,8 +204,7 @@ export default function InterviewPage() {
     }
   }
 
-  async function begin(e: React.FormEvent) {
-    e.preventDefault();
+  async function begin() {
     if (!intake.name.trim() || !intake.age) return;
     setResumable(null);
     setMessages([]);
@@ -306,7 +305,7 @@ export default function InterviewPage() {
   }
 
   return (
-    <main className="relative isolate flex min-h-dvh flex-col">
+    <main className="soothly-fade relative isolate flex min-h-dvh flex-col">
       <PaperField surface="focused" />
       <div className="fixed inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
         <div className="mx-auto max-w-2xl px-6 pb-3 pt-5">
@@ -399,15 +398,30 @@ function Welcome({
 }: {
   intake: Intake;
   setIntake: (i: Intake) => void;
-  onBegin: (e: React.FormEvent) => void;
+  onBegin: () => void;
   resumable: Saved | null;
   onResume: () => void;
   onFresh: () => void;
 }) {
+  const [leaving, setLeaving] = useState(false);
+
+  // Mirror the landing CTA: the welcome card rises away before we hand off to the first question.
+  // Reduced-motion (and a missing field) fall straight through with no animation.
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!intake.name.trim() || !intake.age || leaving) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      onBegin();
+      return;
+    }
+    setLeaving(true);
+    window.setTimeout(onBegin, 420);
+  }
+
   return (
     <main className="flex min-h-dvh items-center justify-center px-6 py-16">
       <PaperField surface="full" />
-      <div className="paper-content soothly-rise w-full max-w-md">
+      <div className={`paper-content w-full max-w-md ${leaving ? "soothly-leave" : "soothly-rise"}`}>
         <BrandMark className="mb-9 block h-9 w-auto" />
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
@@ -433,7 +447,7 @@ function Welcome({
           בערך 20 דקות, שאלה אחת בכל פעם. אין תשובות נכונות, ואפשר לדלג על כל שאלה.
         </p>
 
-        <form onSubmit={onBegin} className="mt-10 space-y-6">
+        <form onSubmit={submit} className="mt-10 space-y-6">
           <label className="block">
             <span className="mb-2 block font-sans text-sm text-muted">איך קוראים לך?</span>
             <input
@@ -479,7 +493,8 @@ function Welcome({
 
           <button
             type="submit"
-            className="mt-2 rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90"
+            disabled={leaving}
+            className="mt-2 rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90 disabled:opacity-90"
           >
             מתחילים
           </button>
