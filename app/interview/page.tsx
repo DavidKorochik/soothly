@@ -277,7 +277,7 @@ export default function InterviewPage() {
         <div className="paper-content soothly-fade max-w-prose text-center">
           <BrandMark className="mx-auto mb-7 h-9 w-auto" />
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">הספר של {intake.name}</h1>
+          <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1] sm:text-5xl">הספר של <bdi>{intake.name}</bdi></h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
           <p className="whitespace-pre-line font-serif text-lg leading-loose text-ink-soft">{assistantText}</p>
           <p className="mt-8 font-sans text-sm text-muted">הספר שלך נכתב עכשיו מהדברים שסיפרת. נשלח לך אותו ברגע שיהיה מוכן.</p>
@@ -440,7 +440,7 @@ function Welcome({
         )}
 
         <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר אישי</p>
-        <h1 className="mt-4 font-serif text-4xl leading-tight">ספר החיים שלך, בקולך</h1>
+        <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1]">ספר החיים שלך, בקולך</h1>
         <p className="mt-5 font-sans leading-relaxed text-ink-soft">
           הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק - רק שלך.
         </p>

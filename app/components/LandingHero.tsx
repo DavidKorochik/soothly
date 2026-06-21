@@ -24,17 +24,20 @@ export default function LandingHero() {
   return (
     <div className={`paper-content max-w-prose text-center${leaving ? " soothly-leave" : ""}`}>
       <BrandMark className="mx-auto mb-7 h-9 w-auto" />
-      <p className="mb-6 font-sans text-xs tracking-[0.28em] text-muted">ספר אישי</p>
-      <h1 className="mb-5 font-serif text-4xl leading-tight sm:text-5xl">כאן נולד הספר שלך</h1>
+      <h1 className="mb-5 font-display font-bold text-[1.95rem] leading-[1.12] sm:text-5xl">
+        הסיפור שלך
+        <br />
+        כמו שרואים אותו מבחוץ
+      </h1>
       <p className="mb-8 font-sans text-lg leading-relaxed text-ink-soft">
-        מקום שקט לספר את החיים שלך - ולגלות את מה שרק מבחוץ אפשר לראות.
+        כמה שאלות על החיים שלך, וספר שנכתב מהתשובות.
       </p>
       <Link
         href="/interview"
         onClick={start}
         className="inline-block rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90"
       >
-        להתחיל לספר
+        מתחילים
       </Link>
       <div className="mx-auto mt-10 h-px w-9 bg-gold-line" />
       <p className="mt-8 font-sans text-xs text-muted">Soothly</p>
