@@ -19,16 +19,18 @@ function MicGlyph() {
 
 export function MicButton({
   sessionId,
+  questionKey,
   disabled,
   onTranscript,
   onState,
 }: {
   sessionId?: string;
+  questionKey?: string;
   disabled?: boolean;
   onTranscript: (text: string) => void;
   onState: (state: VoiceUiState) => void;
 }) {
-  const rec = useRecorder({ sessionId, onTranscript });
+  const rec = useRecorder({ sessionId, questionKey, onTranscript });
 
   useEffect(() => {
     onState({ status: rec.status, errorMessage: rec.errorMessage, seconds: rec.seconds });
