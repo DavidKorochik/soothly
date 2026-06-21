@@ -124,10 +124,10 @@ export default function InterviewPage() {
 
       await new Promise<void>((resolve) => {
         // A CONSTANT pace is the point: a gap-proportional catch-up dumps each network burst then
-        // stalls until the next one (the "fast then stuck" feel). A steady rate lets one burst's
-        // backlog flow into the next, so it reads continuously. Drain the tail once the model is done.
-        const STREAM_CPS = 20;
-        const DRAIN_CPS = 40;
+        // stalls until the next one (the "fast then stuck" feel). One steady rate for the whole
+        // reveal - the same after the model finishes as during - so the cadence never shifts under
+        // the reader.
+        const REVEAL_CPS = 20;
         let last = performance.now();
         // A backgrounded tab pauses requestAnimationFrame, so a turn that finishes while the user is
         // away can't keep painting. Snap to the full text on hide so they return to the finished
@@ -145,10 +145,9 @@ export default function InterviewPage() {
           const dt = (now - last) / 1000;
           last = now;
           if (shown < received.length) {
-            const cps = streamDone ? DRAIN_CPS : STREAM_CPS;
             // Accumulate fractional progress: a per-frame floor of 1 char would pin the reveal to the
-            // refresh rate (~60-120 cps) and make STREAM_CPS/DRAIN_CPS below that a no-op.
-            shown = Math.min(received.length, shown + cps * dt);
+            // refresh rate (~60-120 cps) and make REVEAL_CPS below that a no-op.
+            shown = Math.min(received.length, shown + REVEAL_CPS * dt);
             if (!firstShown) {
               setThinking(false);
               firstShown = true;
