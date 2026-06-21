@@ -356,19 +356,20 @@ export default function InterviewPage() {
             disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
-            className="max-h-[45vh] w-full resize-none overflow-y-auto bg-transparent font-sans text-lg leading-relaxed text-ink outline-none placeholder:text-muted/60 disabled:opacity-50"
-            style={{ minHeight: "2rem" }}
+            className="block max-h-[45vh] w-full resize-none overflow-y-auto border-b border-rule bg-transparent pb-3 font-sans text-lg leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-muted/55 focus:border-gold-line disabled:opacity-50"
+            style={{ minHeight: "2.5rem" }}
             autoFocus
           />
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between gap-3">
             <button
+              type="button"
               onClick={() => void send(true)}
               disabled={busy || voiceActive}
-              className="font-sans text-sm text-muted underline-offset-4 hover:underline disabled:opacity-40"
+              className="font-sans text-sm text-muted underline-offset-4 transition-colors hover:text-ink-soft hover:underline disabled:opacity-40"
             >
               אפשר לדלג על השאלה
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-3">
               {voiceSupported && (
                 <MicButton sessionId={sessionId} disabled={busy} onTranscript={onVoiceTranscript} onState={setVoice} />
               )}
