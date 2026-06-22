@@ -35,7 +35,7 @@ type Msg = { role: "assistant" | "user"; content: string };
 type Step = "welcome" | "talking" | "done";
 type Saved = { intake: Intake; sessionId: string; engine: EngineState; messages: Msg[] };
 
-const STORAGE_KEY = "soothly_interview_v1";
+const STORAGE_KEY = "soothly_interview_v2";
 
 export default function InterviewPage() {
   const [step, setStep] = useState<Step>("welcome");
@@ -290,9 +290,9 @@ export default function InterviewPage() {
     );
   }
 
-  const fills = chapterFills(engine.phase, engine.index);
-  const label = chapterLabel(engine.phase, engine.index);
-  const nearGoal = progress(engine.phase, engine.index) >= 0.8;
+  const fills = chapterFills(engine);
+  const label = chapterLabel(engine);
+  const nearGoal = progress(engine) >= 0.8;
   const voiceActive = voice.status === "requesting" || voice.status === "recording" || voice.status === "transcribing";
 
   function onVoiceTranscript(text: string) {

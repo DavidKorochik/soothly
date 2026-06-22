@@ -1,11 +1,10 @@
 import { z } from "zod";
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { evaluateAnswer } from "@/lib/interview/evaluate";
-import { decideNext, type EngineState } from "@/lib/interview/engine";
-import { questionAt, PHASE1_LEN, PHASE2_LEN } from "@/lib/interview/spine";
+import { planTurn, type TurnPlan } from "@/lib/interview/planner";
+import { decideNext } from "@/lib/interview/engine";
+import { themeByKey, reachableThemes, nextCoverage, THEMES, TOTAL_THEMES } from "@/lib/interview/spine";
 import { systemFor, directiveFor } from "@/lib/interview/prompt";
-import { chapterLabel } from "@/lib/interview/chapters";
 import { saveTranscript, logFunnel, completeSession } from "@/lib/db/queries";
 
 export const runtime = "nodejs";
@@ -19,12 +18,17 @@ const Schema = z.object({
   gender: z.enum(["male", "female"]),
   messages: z.array(MsgSchema).min(1),
   engine: z.object({
-    phase: z.union([z.literal(1), z.literal(2)]),
-    index: z.number().int().min(0),
+    current: z.string(),
+    covered: z.array(z.string()),
     followups: z.number().int().min(0),
+    deepens: z.number().int().min(0),
   }),
   skip: z.boolean().optional(),
 });
+
+// Warm-up chapter rows are phase 1, everything deeper is phase 2 — preserving the transcript's
+// existing 1=warmup / 2=deep convention now that the engine no longer tracks phase directly.
+const phaseFor = (key: string) => ((themeByKey(key)?.chapter ?? 0) === 0 ? 1 : 2);
 
 export async function POST(req: Request) {
   let body: z.infer<typeof Schema>;
@@ -35,33 +39,45 @@ export async function POST(req: Request) {
   }
 
   const { sessionId, gender, name, messages, engine } = body;
-  const target = questionAt(engine.phase, engine.index);
+  const theme = themeByKey(engine.current);
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  if (!target || !lastUser) return Response.json({ error: "מצב לא תקין" }, { status: 400 });
+  if (!theme || !lastUser) return Response.json({ error: "מצב לא תקין" }, { status: 400 });
 
-  // Phase 2 answers are scored for story depth; phase 1 is a light warm-up. A skip never evaluates
-  // (null forces an advance, never a follow-up).
-  const evaluation =
-    engine.phase === 2 && !body.skip ? await evaluateAnswer(target.question, lastUser.content) : null;
-  if (body.skip) await logFunnel({ sessionId, event: "question_skipped", phase: engine.phase, questionKey: target.key });
+  // Plan the turn: read the answer for depth, what it already told, whether to stay on this thread, and
+  // which reachable theme is most alive next. A skip is never planned (null plan -> the engine advances).
+  let plan: TurnPlan | null = null;
+  if (body.skip) {
+    await logFunnel({ sessionId, event: "question_skipped", phase: phaseFor(theme.key), questionKey: theme.key });
+  } else {
+    const covered = [...new Set([...engine.covered, engine.current])];
+    const done = new Set(covered);
+    const remaining = THEMES.filter((t) => !done.has(t.key));
+    const candidates = reachableThemes(covered);
+    plan = await planTurn({ theme, answer: lastUser.content, candidates, remaining });
+  }
 
   await saveTranscript({
     sessionId,
-    phase: engine.phase,
-    questionKey: target.key,
-    questionText: lastAssistant?.content ?? target.question,
+    phase: phaseFor(theme.key),
+    questionKey: theme.key,
+    questionText: lastAssistant?.content ?? theme.question,
     answer: lastUser.content,
-    meta: { eval: evaluation, followupRound: engine.followups },
+    meta: { plan, followupRound: engine.followups },
   });
 
-  const decision = decideNext(engine as EngineState, evaluation, { phase1: PHASE1_LEN, phase2: PHASE2_LEN });
+  // Themes the answer already told, so the engine will skip them - logged so a production skip rate is
+  // visible, not only buried in transcript meta.
+  if (plan?.alsoCovered.length) {
+    await logFunnel({ sessionId, event: "themes_volunteered", phase: phaseFor(theme.key), questionKey: theme.key, meta: { volunteered: plan.alsoCovered } });
+  }
+
+  const decision = decideNext(engine, plan, nextCoverage(engine.covered, engine.current, plan?.alsoCovered ?? []));
 
   if (decision.action === "advance") {
-    const next = questionAt(decision.state.phase, decision.state.index)!;
-    await logFunnel({ sessionId, event: "question_reached", phase: decision.state.phase, questionKey: next.key });
-  } else if (decision.action === "followup") {
-    await logFunnel({ sessionId, event: "followup_asked", phase: engine.phase, questionKey: target.key });
+    await logFunnel({ sessionId, event: "question_reached", phase: phaseFor(decision.next), questionKey: decision.next });
+  } else if (decision.action === "deepen") {
+    await logFunnel({ sessionId, event: "followup_asked", phase: phaseFor(theme.key), questionKey: theme.key });
   } else {
     await logFunnel({ sessionId, event: "interview_completed", phase: 2 });
     await completeSession(sessionId);
@@ -69,11 +85,12 @@ export async function POST(req: Request) {
 
   let directive = directiveFor(decision);
   if (decision.action === "advance") {
-    if (chapterLabel(engine.phase, engine.index) !== chapterLabel(decision.state.phase, decision.state.index)) {
+    if (themeByKey(engine.current)?.chapter !== themeByKey(decision.next)?.chapter) {
       directive +=
-        " The person just finished a part of the conversation - add one short, warm beat acknowledging the gentle move into a new part before asking (never name it like a form section).";
+        " This question opens a deeper part of the conversation - let your bridge from what they just said carry that shift. Do not announce a new section, and never frame it as 'moving on' or going 'back'.";
     }
-    if (decision.state.phase === 2 && decision.state.index >= PHASE2_LEN - 2) {
+    // The end is near once only a couple of themes remain to ask (the new current plus at most one more).
+    if (TOTAL_THEMES - decision.state.covered.length <= 2) {
       directive += " The end is near - you may let them gently feel that we are almost done.";
     }
   }
