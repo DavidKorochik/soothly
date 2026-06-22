@@ -32,7 +32,8 @@ export async function POST(req: Request) {
   try {
     const book = await synthesizeBook(input);
     const pdf = await renderPdf(book, input.name);
-    const url = await storePdf(pdf, `${crypto.randomUUID()}.pdf`);
+    const key = await storePdf(pdf, `${crypto.randomUUID()}.pdf`);
+    const url = `/api/book/${key}`;
     return NextResponse.json({ status: "ok", url, title: book.title, chapters: book.chapters.length });
   } catch (error) {
     console.error("synthesis pipeline failed", error);
