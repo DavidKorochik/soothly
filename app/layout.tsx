@@ -24,7 +24,7 @@ const david = David_Libre({
 });
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-const DESCRIPTION = "ספר אישי - הסיפור שלך, כפי שנראה מבחוץ.";
+const DESCRIPTION = "הסיפור שלך, כפי שנראה מבחוץ.";
 
 // Icons (favicon.ico, icon.svg, apple-icon.png) and the social card (opengraph-image.png,
 // twitter-image.png) are wired up automatically from their files in app/.
