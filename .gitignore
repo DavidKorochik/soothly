@@ -57,7 +57,7 @@ out/
 .next/
 next-env.d.ts
 .vercel
-public/_books/
+.books/
 
 # Logs / temp
 *.log
