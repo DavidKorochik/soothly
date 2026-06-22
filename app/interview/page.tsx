@@ -168,6 +168,9 @@ export default function InterviewPage() {
             const after = Math.floor(shown);
             if (!firstShown) {
               setThinking(false);
+              // Advance the chapter title + progress as the new question starts to appear, so they
+              // track the question on screen instead of snapping a beat late once it finishes typing.
+              if (nextEngine) setEngine(nextEngine);
               firstShown = true;
             }
             const text = received.slice(0, after);
@@ -194,7 +197,7 @@ export default function InterviewPage() {
       // failed - surface it via the caller's catch instead of rendering a blank or hanging.
       if (pumpError) throw pumpError;
       if (!received.trim()) throw new Error("empty stream");
-      return { engine: nextEngine, done, sessionId: sid };
+      return { done, sessionId: sid };
     } finally {
       // Re-enable the input on every exit - success, error, or abort - so a failed fetch can never
       // leave the controls stuck disabled.
@@ -217,7 +220,6 @@ export default function InterviewPage() {
         age: intake.age,
       });
       if (r.sessionId) setSessionId(r.sessionId);
-      setEngine(r.engine);
     } catch {
       setMessages([{ role: "assistant", content: "משהו השתבש. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
     }
@@ -249,9 +251,11 @@ export default function InterviewPage() {
         engine,
         skip,
       });
-      setEngine(r.engine);
       if (r.done) setStep("done");
     } catch {
+      // The title advances optimistically once the new question starts streaming; on a failed turn
+      // roll it back so a refresh-resume can't land a question ahead of where they actually are.
+      setEngine(engine);
       // Drop the empty assistant placeholder streamTurn added before the failure so it does not
       // linger in state (and localStorage) ahead of the error message.
       setMessages((m) => {
