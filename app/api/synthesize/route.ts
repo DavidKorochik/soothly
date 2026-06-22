@@ -13,7 +13,7 @@ const InputSchema = z.object({
   name: z.string().trim().min(1),
   gender: z.enum(["male", "female"]),
   age: z.coerce.number().int().min(1).max(120),
-  answers: z.string().trim().min(1),
+  answers: z.string().trim().min(1).max(100000),
 });
 
 export async function POST(req: Request) {
