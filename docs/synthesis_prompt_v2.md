@@ -102,6 +102,20 @@ a book, not a summary. But every paragraph must stay anchored; no drifting into 
 **❌ nugget:** תאמיני בעצמך והכל אפשרי.
 **✅ nugget:** מה שנראה לך כמו "לא לסיים דברים" הוא היכולת לדעת מתי דבר כבר נתן לך את כל מה שהיה לו לתת.
 
+## MORE CALIBRATION — voice tells (study these too)
+**❌ translationese:** הספר הזה הוא על המסע שעברת. **✅:** הספר הזה מספר על מה שעברת, מהדברים שחזרת אליהם שוב ושוב.
+**❌ archaic:** רגע זה מהווה נקודת מפנה אשר שינתה אותך. **✅:** זה הרגע שאחריו כבר לא חזרת אחורה.
+**❌ barnum / AI-sentiment:** כל אחד מאיתנו נושא בתוכו סיפור, וגם לך מגיע לספר אותו. **✅:** סיפרת שחיכית שכולם ילכו לישון כדי לבכות. זו לא חולשה - ככה שמרת על כולם.
+
+## GOLD EXAMPLE — voice & anchoring reference (illustrative; do NOT copy its content or persona)
+A fictional sample, here ONLY to show the texture, the depth of anchoring, and the warmth to aim for.
+The person is invented — never borrow these facts. Your book is built 100% from THIS person's answers.
+- **Title:** הדלת שתמיד נשארה פתוחה
+- **Body:** שלוש פעמים סיפרת על אותה תנועה קטנה - השארת מפתח מתחת לעציץ. לאחים שלך כשעזבו את הבית, לחברה שעברה דירה, ואפילו לשכן שבקושי הכרת. לא דיברת על זה כמו על נדיבות. דיברת על זה כאילו זה מובן מאליו. אבל מי שקורא את שלושת הסיפורים רואה אדם שבנה חיים שבהם תמיד יש למישהו לאן לחזור - גם כשלך לא תמיד היה. זה לא תפקיד שבחרת, זה משהו שפשוט עשית, שוב ושוב, בלי לספור.
+- **Nugget:** השארת מפתח לכולם, גם כשלא היית בטוח שיש לך בית משלך.
+
+> When you have them, replace this fictional sample with 2-3 REAL curated chapters as gold few-shot.
+
 ## FINAL CHECK
 Re-read every sentence: could it appear in a stranger's book? If yes, cut and anchor.
 Confirm gender forms consistent. Confirm you did NOT pad — every paragraph earns its place.
