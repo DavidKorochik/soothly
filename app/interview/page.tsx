@@ -431,7 +431,7 @@ function Welcome({
         {resumable && (
           <div className="mb-10 rounded-2xl border border-gold-line bg-[rgba(168,124,79,0.06)] p-5 text-center">
             <p className="font-serif text-lg text-ink">הספר שלך מחכה לך.</p>
-            <p className="mt-1 font-sans text-sm text-muted">השארת באמצע - אפשר להמשיך בדיוק מאיפה שעצרת.</p>
+            <p className="mt-1 font-sans text-sm text-muted">הפסקת באמצע, אבל שמרנו כל מילה שכתבת.</p>
             <div className="mt-4 flex justify-center gap-3">
               <button onClick={onResume} className="rounded-full bg-ink px-6 py-2.5 font-sans text-sm text-paper hover:opacity-90">
                 להמשיך
