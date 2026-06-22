@@ -1,34 +1,27 @@
-import { PHASE1_LEN, PHASE2_LEN, questionAt } from "./spine";
-import type { Phase } from "./engine";
+import { THEMES, TOTAL_THEMES, CHAPTER_LABELS, themeByKey } from "./spine";
+import type { EngineState } from "./engine";
 
-// Named chapters for the progress rule - the interview reads as a few short arcs, never "Q 7 of 16".
-export const CHAPTERS: { label: string; keys: string[] }[] = [
-  { label: "הסיפור מתחיל", keys: ["now", "why_now"] },
-  { label: "מאיפה באת", keys: ["roots", "childhood"] },
-  { label: "רגעים שעיצבו אותך", keys: ["turning", "decision", "hardship", "failure"] },
-  { label: "אנשים, דפוסים, צללים", keys: ["people", "pattern", "fear", "shadow"] },
-  { label: "מי שנהיית", keys: ["insight", "change"] },
-  { label: "ולאן מכאן", keys: ["future", "pride"] },
-];
+const chapterOf = (key: string) => themeByKey(key)?.chapter ?? 0;
 
-export function chapterLabel(phase: Phase, index: number): string {
-  const key = questionAt(phase, index)?.key;
-  return CHAPTERS.find((c) => key && c.keys.includes(key))?.label ?? "";
+export function chapterLabel(state: EngineState): string {
+  return CHAPTER_LABELS[chapterOf(state.current)] ?? "";
 }
 
-// 0..1, with an endowed jump to ~18% the moment the warm-up ends (goal-gradient / endowed progress).
-export function progress(phase: Phase, index: number): number {
-  if (phase === 1) return (index / PHASE1_LEN) * 0.1;
-  return 0.18 + (index / PHASE2_LEN) * 0.82;
+// 0..1 overall progress, endowed with a small head start so the bar never reads empty (goal-gradient).
+// `current` is in flight and not yet counted, so the bar fills as themes actually land.
+export function progress(state: EngineState): number {
+  return Math.min(1, 0.06 + (state.covered.length / TOTAL_THEMES) * 0.94);
 }
 
-// Per-chapter fill (0..1) for the segmented progress: past chapters full, the current one partial.
-export function chapterFills(phase: Phase, index: number): number[] {
-  const key = questionAt(phase, index)?.key;
-  const current = CHAPTERS.findIndex((c) => key !== undefined && c.keys.includes(key));
-  return CHAPTERS.map((c, i) => {
-    if (current === -1 || i > current) return 0;
-    if (i < current) return 1;
-    return Math.min(1, (c.keys.indexOf(key!) + 1) / c.keys.length);
+// Per-chapter fill (0..1) for the segmented gold rule: covered themes fill their chapter; the in-flight
+// `current` shows its own chapter as partway done.
+export function chapterFills(state: EngineState): number[] {
+  const done = new Set(state.covered);
+  const currentChapter = chapterOf(state.current);
+  return CHAPTER_LABELS.map((_, ch) => {
+    const keys = THEMES.filter((t) => t.chapter === ch);
+    const coveredInCh = keys.filter((t) => done.has(t.key)).length;
+    const inFlight = currentChapter === ch ? 0.5 : 0;
+    return Math.min(1, (coveredInCh + inFlight) / keys.length);
   });
 }
