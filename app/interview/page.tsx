@@ -283,7 +283,7 @@ export default function InterviewPage() {
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
           <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1] sm:text-5xl">הספר של <bdi>{intake.name}</bdi></h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
-          <p className="whitespace-pre-line font-serif text-lg leading-loose text-ink-soft">{assistantText}</p>
+          <p className="whitespace-pre-line font-serif text-base leading-loose text-ink-soft">{assistantText}</p>
           <p className="mt-8 font-sans text-sm text-muted">הספר שלך נכתב עכשיו מהדברים שסיפרת. נשלח לך אותו ברגע שיהיה מוכן.</p>
         </div>
       </main>
@@ -340,7 +340,7 @@ export default function InterviewPage() {
         {thinking && !assistantText ? (
           <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="קוראים את מה שסיפרת" />
         ) : (
-          <h2 key={messages.length} className="soothly-rise font-serif text-2xl leading-relaxed text-ink sm:text-[28px] sm:leading-relaxed">
+          <h2 key={messages.length} className="soothly-rise font-serif text-xl leading-relaxed text-ink sm:text-2xl sm:leading-relaxed">
             {assistantText}
           </h2>
         )}
