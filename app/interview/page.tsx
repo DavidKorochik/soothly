@@ -359,7 +359,7 @@ export default function InterviewPage() {
             disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
-            className="block max-h-[45vh] w-full resize-none overflow-y-auto border-b border-rule bg-transparent pb-3 font-sans text-lg leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-muted/55 focus:border-gold-line disabled:opacity-50"
+            className="block max-h-[45vh] w-full resize-none overflow-y-auto border-b border-rule bg-transparent pb-3 font-sans text-base leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-muted/55 focus:border-gold-line disabled:opacity-50"
             style={{ minHeight: "2.5rem" }}
             autoFocus
           />
@@ -459,7 +459,7 @@ function Welcome({
               value={intake.name}
               onChange={(e) => setIntake({ ...intake, name: e.target.value })}
               required
-              className="w-full border-b border-rule bg-transparent pb-2 font-serif text-xl text-ink outline-none focus:border-gold-line"
+              className="w-full border-b border-rule bg-transparent pb-2 font-serif text-lg text-ink outline-none focus:border-gold-line"
             />
           </label>
 
@@ -487,12 +487,14 @@ function Welcome({
             <span className="mb-2 block font-sans text-sm text-muted">מה הגיל שלך?</span>
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={1}
               max={120}
               value={intake.age}
               onChange={(e) => setIntake({ ...intake, age: e.target.value })}
               required
-              className="w-28 border-b border-rule bg-transparent pb-2 font-serif text-xl text-ink outline-none focus:border-gold-line"
+              className="w-28 border-b border-rule bg-transparent pb-2 font-serif text-lg text-ink outline-none focus:border-gold-line"
             />
           </label>
 
