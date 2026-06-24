@@ -1,8 +1,14 @@
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { buildSynthesisPrompt, buildRepairPrompt, type SynthesisInput } from "./prompt";
+import { buildSynthesisPrompt, type SynthesisInput } from "./prompt";
 import { parseBook, type Book } from "./parse";
 import { runQualityCheck } from "@/lib/quality/check";
+import { repairBook } from "./repair";
+
+// What surface the judge is scoring — shared by the gate and the post-repair re-judge so both apply
+// the gender rule the same way.
+const QUALITY_CONTEXT =
+  "a personal Hebrew keepsake book; the subject's gender is known, so there should be no slash-gender forms";
 
 // Opus for the book - it's once per customer and the highest-stakes Hebrew we produce; it follows
 // the long ban-list and avoids translationese better than Sonnet. Opus 4.8 rejects `temperature`.
@@ -12,9 +18,8 @@ const SYSTEM =
   "אתה כותב את הספר בעברית בלבד. התחל מיד בסמן [TITLE], בלי שום טקסט לפניו. הפק אך ורק את הספר עם הסמנים (markers) בדיוק כפי שהוגדר - בלי הקדמה, בלי הסברים, בלי מחשבות, בלי טקסט באנגלית.";
 
 // Bounded so a stalled stream can't hang the request or starve the PDF/upload stages of the route's
-// maxDuration. The repair path is best-effort: if it times out it fails open to the original book.
+// maxDuration. (The repair pass no longer regenerates the book; it patches only the flagged lines.)
 const GENERATE_TIMEOUT_MS = 180_000;
-const REPAIR_TIMEOUT_MS = 60_000;
 
 // Stream server-side and await the full text. The book runs at maxOutputTokens 32000, well past the
 // ~16K threshold where a non-streamed call risks a silent SDK HTTP timeout; awaiting result.text
@@ -40,18 +45,15 @@ export async function synthesizeBook(input: SynthesisInput): Promise<Book> {
   const raw = await generate(buildSynthesisPrompt(input), GENERATE_TIMEOUT_MS);
   const book = parseBook(raw); // the original must be a valid book before we consider polishing it
 
-  // Quality gate: judge the Hebrew, and if it falls short run ONE bounded repair pass. Fail-open by
-  // design - the original book is already valid, so any judge/repair hiccup keeps it, never discards
-  // it. (This differs from the safety gate, which fails CLOSED - there the stakes run the other way.)
-  const verdict = await runQualityCheck(
-    raw,
-    "a personal Hebrew keepsake book; the subject's gender is known, so there should be no slash-gender forms",
-  );
+  // Quality gate: judge the Hebrew, and if it falls short run a fast TARGETED repair (patch only the
+  // flagged lines, then re-judge and keep the better draft). Fail-open by design - the original book
+  // is already valid, so any judge/repair hiccup keeps it, never discards it. (This differs from the
+  // safety gate, which fails CLOSED - there the stakes run the other way.)
+  const verdict = await runQualityCheck(raw, QUALITY_CONTEXT);
   if (verdict.ok) return book;
 
   try {
-    const repaired = await generate(buildRepairPrompt(raw, verdict.feedback, input), REPAIR_TIMEOUT_MS);
-    return parseBook(repaired); // only accept the repair if it still parses into a valid book
+    return await repairBook({ raw, original: book, verdict, context: QUALITY_CONTEXT });
   } catch (error) {
     const kind = error instanceof Error ? error.name : "Unknown";
     console.error(`book repair pass failed (${kind}) - keeping the original book`);

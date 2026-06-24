@@ -48,10 +48,17 @@ export async function logFunnel(input: {
   }
 }
 
+// Best-effort: mark the session completed. Never throws - this status write runs on the final turn,
+// after the answer is already saved, so a transient DB failure here must not 500 the turn and show
+// the user an error right when they have actually finished the interview.
 export async function completeSession(sessionId: string): Promise<void> {
-  if (!persistenceEnabled()) return;
-  const db = await getDb();
-  await withRetry(() => db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId)));
+  try {
+    if (!persistenceEnabled()) return;
+    const db = await getDb();
+    await withRetry(() => db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId)));
+  } catch (err) {
+    console.error("[completeSession] non-fatal completion write failed", { sessionId, err });
+  }
 }
 
 // Best-effort: link the stored book to its session and mark it synthesized. Never throws - a link

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { ProviderHealth, ProviderKey } from "@/lib/status/types";
+import { safeSessionStorage } from "@/lib/safeStorage";
 
 type ServiceStatus = Record<ProviderKey, ProviderHealth>;
 
@@ -62,7 +63,7 @@ export default function ServiceStatusBanner() {
   }, []);
 
   useEffect(() => {
-    setDismissed(sessionStorage.getItem(DISMISS_KEY));
+    setDismissed(safeSessionStorage.get(DISMISS_KEY));
     void refresh();
     const id = setInterval(() => void refresh(), POLL_INTERVAL_MS);
     const onVisible = () => {
@@ -85,7 +86,7 @@ export default function ServiceStatusBanner() {
   if (visible.length === 0 || signature === dismissed) return null;
 
   const onDismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, signature);
+    safeSessionStorage.set(DISMISS_KEY, signature);
     setDismissed(signature);
   };
 
