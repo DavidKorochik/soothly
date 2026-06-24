@@ -64,6 +64,35 @@ export function MicButton({
   );
 }
 
+// A one-time nudge above the mic on the very first question: writing can be tiring, so you can
+// just talk instead. The downward tail points at the mic; the parent clears it the moment the
+// person types, records, or closes it.
+export function MicHint({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div
+      role="status"
+      className="soothly-fade pointer-events-none absolute bottom-full left-0 z-20 mb-3 w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-gold-line bg-paper py-3 pl-6 pr-4 text-right shadow-[0_10px_30px_rgba(27,26,23,0.12)]"
+    >
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="סגירה"
+        className="pointer-events-auto absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-muted transition-colors hover:text-ink-soft"
+      >
+        <span className="text-base leading-none">×</span>
+      </button>
+      <p className="font-sans text-xs leading-relaxed text-ink-soft">
+        <span className="mb-0.5 block font-medium text-ink">אין כוח לכתוב?</span>
+        אפשר פשוט לספר בקול.
+      </p>
+      <span
+        aria-hidden
+        className="absolute -bottom-1.5 left-5 h-3 w-3 rotate-45 border-b border-r border-gold-line bg-paper"
+      />
+    </div>
+  );
+}
+
 // Lives below the controls row, full width. One calm line: privacy when idle, a timer while
 // listening, "מתמללים" while transcribing, and a warm gold (never red) line on error.
 export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState) {
