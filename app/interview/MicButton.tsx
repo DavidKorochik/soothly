@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MAX_RECORD_SECONDS, useRecorder, type RecorderStatus } from "./useRecorder";
 
 export type VoiceUiState = { status: RecorderStatus; errorMessage: string | null; seconds: number };
@@ -65,17 +65,21 @@ export function MicButton({
 }
 
 // A one-time nudge above the mic on the very first question: writing can be tiring, so you can
-// just talk instead. The downward tail points at the mic; the parent clears it the moment the
-// person types, records, or closes it.
+// just talk instead. The downward tail points at the mic. Typing or recording clears it at once
+// (the parent unmounts it); the × fades it out first - mirroring the fade-in - then dismisses.
 export function MicHint({ onDismiss }: { onDismiss: () => void }) {
+  const [closing, setClosing] = useState(false);
   return (
     <div
       role="status"
-      className="soothly-fade pointer-events-none absolute bottom-full left-0 z-20 mb-3 w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-gold-line bg-paper py-3 pl-6 pr-4 text-right shadow-[0_10px_30px_rgba(27,26,23,0.12)]"
+      onAnimationEnd={() => {
+        if (closing) onDismiss();
+      }}
+      className={`${closing ? "soothly-fade-out" : "soothly-fade"} pointer-events-none absolute bottom-full left-0 z-20 mb-3 w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-gold-line bg-paper py-3 pl-6 pr-4 text-right shadow-[0_10px_30px_rgba(27,26,23,0.12)]`}
     >
       <button
         type="button"
-        onClick={onDismiss}
+        onClick={() => setClosing(true)}
         aria-label="סגירה"
         className="pointer-events-auto absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-muted transition-colors hover:text-ink-soft"
       >
