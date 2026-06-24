@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
+import { buildAnswers, SKIP_MARKER } from "@/lib/interview/answers";
+import { addBook, parseBooks, type SavedBook } from "@/lib/interview/books";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
@@ -31,11 +33,18 @@ function speechPauseMs(ch: string): number {
 
 type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender; age: string };
-type Msg = { role: "assistant" | "user"; content: string };
+type Msg = { role: "assistant" | "user"; content: string; error?: boolean };
 type Step = "welcome" | "talking" | "done";
 type Saved = { intake: Intake; sessionId: string; engine: EngineState; messages: Msg[] };
+type BookState =
+  | { status: "idle" }
+  | { status: "generating" }
+  | { status: "ready"; url: string }
+  | { status: "flagged"; message: string }
+  | { status: "error" };
 
 const STORAGE_KEY = "soothly_interview_v2";
+const BOOKS_STORAGE_KEY = "soothly_books_v1";
 
 export default function InterviewPage() {
   const [step, setStep] = useState<Step>("welcome");
@@ -49,11 +58,19 @@ export default function InterviewPage() {
   const [resumable, setResumable] = useState<Saved | null>(null);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [voice, setVoice] = useState<VoiceUiState>({ status: "idle", errorMessage: null, seconds: 0 });
+  const [book, setBook] = useState<BookState>({ status: "idle" });
+  const [books, setBooks] = useState<SavedBook[]>([]);
+  const bookStartedRef = useRef(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setVoiceSupported(isRecordingSupported()), []);
 
   useEffect(() => {
+    // The user's library of finished books, surfaced on the welcome screen so a refresh never loses a
+    // download link and they can open a past book or start a new one. (book_key is persisted
+    // server-side too, but there's no lookup route yet.)
+    setBooks(parseBooks(localStorage.getItem(BOOKS_STORAGE_KEY)));
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     try {
@@ -70,6 +87,15 @@ export default function InterviewPage() {
     }
     if (step === "done") localStorage.removeItem(STORAGE_KEY);
   }, [step, intake, sessionId, engine, messages]);
+
+  // Once the interview completes, synthesize the book and reveal a download link on the done screen.
+  // The ref guard fires it exactly once; messages/sessionId/intake are final by the time step is "done".
+  useEffect(() => {
+    if (step !== "done" || bookStartedRef.current) return;
+    bookStartedRef.current = true;
+    void makeBook();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Grow the answer box to fit its content on every change - typing, paste, dictation, or reset -
   // so the whole answer stays visible instead of scrolling one line at a time inside a short box.
@@ -221,7 +247,44 @@ export default function InterviewPage() {
       });
       if (r.sessionId) setSessionId(r.sessionId);
     } catch {
-      setMessages([{ role: "assistant", content: "משהו השתבש. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }]);
+      setMessages([{ role: "assistant", content: "משהו השתבש. אפשר לרענן ולהתחיל שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל.", error: true }]);
+    }
+  }
+
+  async function makeBook() {
+    setBook({ status: "generating" });
+    try {
+      const res = await fetch("/api/synthesize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: sessionId || undefined,
+          name: intake.name.trim(),
+          gender: intake.gender,
+          age: intake.age,
+          answers: buildAnswers(messages),
+        }),
+      });
+      const data = await res.json();
+      if (data?.status === "ok" && typeof data.url === "string") {
+        const entry: SavedBook = {
+          name: intake.name,
+          url: data.url,
+          title: typeof data.title === "string" ? data.title : undefined,
+          age: intake.age || undefined,
+          createdAt: Date.now(),
+        };
+        const next = addBook(books, entry);
+        localStorage.setItem(BOOKS_STORAGE_KEY, JSON.stringify(next));
+        setBooks(next);
+        setBook({ status: "ready", url: data.url });
+      } else if (data?.status === "flagged" && typeof data.message === "string") {
+        setBook({ status: "flagged", message: data.message });
+      } else {
+        setBook({ status: "error" });
+      }
+    } catch {
+      setBook({ status: "error" });
     }
   }
 
@@ -235,9 +298,22 @@ export default function InterviewPage() {
     setStep("talking");
   }
 
+  // Leave the done screen for a fresh interview without touching the saved library, so a person can
+  // make a book for another phase of life (or another subject) and keep the ones they already made.
+  function startNew() {
+    setBook({ status: "idle" });
+    bookStartedRef.current = false;
+    setMessages([]);
+    setSessionId("");
+    setEngine(START);
+    setInput("");
+    setResumable(null);
+    setStep("welcome");
+  }
+
   async function send(skip = false) {
     if (busy) return;
-    const answer = skip ? "(דילגתי על השאלה)" : input.trim();
+    const answer = skip ? SKIP_MARKER : input.trim();
     if (!skip && !answer) return;
     const convo: Msg[] = [...messages, { role: "user", content: answer }];
     setMessages(convo);
@@ -261,13 +337,13 @@ export default function InterviewPage() {
       setMessages((m) => {
         const last = m[m.length - 1];
         const base = last?.role === "assistant" && !last.content.trim() ? m.slice(0, -1) : m;
-        return [...base, { role: "assistant", content: "משהו השתבש בשליחה. אפשר לנסות שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל." }];
+        return [...base, { role: "assistant", content: "משהו השתבש בשליחה. אפשר לנסות שוב. אם זה ממשיך, הצוות שלנו יחזור אליך במייל.", error: true }];
       });
     }
   }
 
   if (step === "welcome") {
-    return <Welcome intake={intake} setIntake={setIntake} onBegin={begin} resumable={resumable} onResume={resume} onFresh={() => { localStorage.removeItem(STORAGE_KEY); setResumable(null); }} />;
+    return <Welcome intake={intake} setIntake={setIntake} onBegin={begin} resumable={resumable} onResume={resume} onFresh={() => { localStorage.removeItem(STORAGE_KEY); setResumable(null); }} books={books} />;
   }
 
   const current = messages[messages.length - 1];
@@ -283,8 +359,18 @@ export default function InterviewPage() {
           <p className="font-sans text-xs tracking-[0.3em] text-muted">הספר שלך</p>
           <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1] sm:text-5xl">הספר של <bdi>{intake.name}</bdi></h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
-          <p className="whitespace-pre-line font-serif text-base leading-loose text-ink-soft">{assistantText}</p>
-          <p className="mt-8 font-sans text-sm text-muted">הספר שלך נכתב עכשיו מהדברים שסיפרת. נשלח לך אותו ברגע שיהיה מוכן.</p>
+          {assistantText && (
+            <p className="whitespace-pre-line font-serif text-base leading-loose text-ink-soft">{assistantText}</p>
+          )}
+          <BookPanel book={book} onRetry={() => void makeBook()} />
+          {book.status !== "generating" && (
+            <button
+              onClick={startNew}
+              className="mt-10 font-sans text-sm text-muted underline-offset-4 transition-colors hover:text-ink-soft hover:underline"
+            >
+              ליצור ספר חדש
+            </button>
+          )}
         </div>
       </main>
     );
@@ -393,6 +479,46 @@ export default function InterviewPage() {
   );
 }
 
+function BookPanel({ book, onRetry }: { book: BookState; onRetry: () => void }) {
+  if (book.status === "ready") {
+    return (
+      <div className="mt-8">
+        <p className="font-sans text-sm text-muted">הספר שלך מוכן.</p>
+        <a
+          href={book.url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-block rounded-full bg-ink px-7 py-3 font-sans text-sm text-paper transition hover:opacity-90"
+        >
+          לפתוח את הספר (PDF) ↗
+        </a>
+      </div>
+    );
+  }
+  if (book.status === "flagged") {
+    return <p className="mt-8 whitespace-pre-line font-sans text-sm leading-relaxed text-ink-soft">{book.message}</p>;
+  }
+  if (book.status === "error") {
+    return (
+      <div className="mt-8">
+        <p className="font-sans text-sm text-ink-soft">משהו השתבש ביצירת הספר. הדברים שסיפרת שמורים.</p>
+        <button
+          onClick={onRetry}
+          className="mt-4 rounded-full border border-rule px-6 py-2.5 font-sans text-sm text-ink-soft transition hover:border-gold-line"
+        >
+          לנסות שוב
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-8 flex flex-col items-center gap-4">
+      <div className="h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="כותבים את הספר" />
+      <p className="font-sans text-sm text-muted">כותבים עכשיו את הספר שלך מהדברים שסיפרת. זה ייקח דקה או שתיים.</p>
+    </div>
+  );
+}
+
 function Welcome({
   intake,
   setIntake,
@@ -400,6 +526,7 @@ function Welcome({
   resumable,
   onResume,
   onFresh,
+  books,
 }: {
   intake: Intake;
   setIntake: (i: Intake) => void;
@@ -407,6 +534,7 @@ function Welcome({
   resumable: Saved | null;
   onResume: () => void;
   onFresh: () => void;
+  books: SavedBook[];
 }) {
   const [leaving, setLeaving] = useState(false);
 
@@ -440,6 +568,26 @@ function Welcome({
                 להתחיל מחדש
               </button>
             </div>
+          </div>
+        )}
+
+        {books.length > 0 && (
+          <div className="mb-10">
+            <p className="mb-3 font-sans text-sm text-muted">הספרים שלך</p>
+            <ul className="space-y-2.5">
+              {books.map((b) => (
+                <li key={b.url}>
+                  <a
+                    href={b.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-serif text-base text-ink underline-offset-4 transition-colors hover:text-gold hover:underline"
+                  >
+                    {b.title || `הספר של ${b.name}`}{b.age ? ` · גיל ${b.age}` : ""} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 

@@ -1,9 +1,8 @@
 import { eq } from "drizzle-orm";
 import { sessions, transcripts, funnelEvents } from "./schema";
+import { persistenceEnabled, withRetry } from "./persistence";
 
-// In dev without a Neon URL the interview still runs end-to-end; persistence simply turns on
-// once DATABASE_URL is set. (schema imports are connection-free, so this stays safe to import.)
-const configured = () => !!process.env.DATABASE_URL;
+// schema imports are connection-free, so this module stays safe to import without a DB.
 const getDb = async () => (await import("./index")).db;
 
 export async function createSession(input: {
@@ -11,9 +10,9 @@ export async function createSession(input: {
   gender: "male" | "female";
   age: number;
 }): Promise<string> {
-  if (!configured()) return crypto.randomUUID();
+  if (!persistenceEnabled()) return crypto.randomUUID();
   const db = await getDb();
-  const [row] = await db.insert(sessions).values(input).returning({ id: sessions.id });
+  const [row] = await withRetry(() => db.insert(sessions).values(input).returning({ id: sessions.id }));
   return row.id;
 }
 
@@ -25,9 +24,11 @@ export async function saveTranscript(input: {
   answer: string;
   meta?: unknown;
 }): Promise<void> {
-  if (!configured()) return;
+  if (!persistenceEnabled()) return;
   const db = await getDb();
-  await db.insert(transcripts).values(input);
+  // The answer is the one irreplaceable write in the interview - retry hard before letting it fail.
+  // Retry is at-least-once: a lost response after commit can duplicate the row, but a rare dup beats a lost answer (no idempotency key yet).
+  await withRetry(() => db.insert(transcripts).values(input));
 }
 
 export async function logFunnel(input: {
@@ -37,13 +38,34 @@ export async function logFunnel(input: {
   questionKey?: string;
   meta?: unknown;
 }): Promise<void> {
-  if (!configured()) return;
-  const db = await getDb();
-  await db.insert(funnelEvents).values(input);
+  // Analytics only - a funnel write must never throw and take down the interview or block the answer save.
+  try {
+    if (!persistenceEnabled()) return;
+    const db = await getDb();
+    await db.insert(funnelEvents).values(input);
+  } catch (err) {
+    console.error("[logFunnel] non-fatal funnel write failed", { event: input.event, err });
+  }
 }
 
 export async function completeSession(sessionId: string): Promise<void> {
-  if (!configured()) return;
+  if (!persistenceEnabled()) return;
   const db = await getDb();
-  await db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId));
+  await withRetry(() => db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId)));
+}
+
+// Best-effort: link the stored book to its session and mark it synthesized. Never throws - a link
+// failure must not deny the user the book they just generated (the key is still returned to them).
+// TODO(accounts): scope this to the session owner once auth exists - today any caller with a valid
+// session UUID could relink it (low risk: bookKey is not an auth token; the book route serves by key).
+export async function setBookKey(sessionId: string, bookKey: string): Promise<void> {
+  try {
+    if (!persistenceEnabled()) return;
+    const db = await getDb();
+    await withRetry(() =>
+      db.update(sessions).set({ status: "synthesized", bookKey, updatedAt: new Date() }).where(eq(sessions.id, sessionId)),
+    );
+  } catch (err) {
+    console.error("[setBookKey] non-fatal book link failed", { sessionId, err });
+  }
 }
