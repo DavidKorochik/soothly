@@ -9,7 +9,9 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "node --experimental-strip-types --test lib/synthesis/parse.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/transcription/transcribe.test.ts lib/status/check.test.ts lib/quality/decide.test.ts"
+    "test": "node --experimental-strip-types --test lib/synthesis/parse.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/transcription/transcribe.test.ts lib/status/check.test.ts lib/quality/decide.test.ts",
+    "ab:run": "node --experimental-strip-types scripts/hebrew-ab/run.ts",
+    "ab:tally": "node --experimental-strip-types scripts/hebrew-ab/tally.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",
@@ -26,6 +28,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@ai-sdk/openai": "^3.0.74",
     "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^22.10.7",
     "@types/react": "^19.2.0",
