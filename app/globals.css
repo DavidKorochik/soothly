@@ -53,7 +53,7 @@ button:not(:disabled),
 }
 .soothly-rise { animation: soothly-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .soothly-fade { animation: soothly-fade 1.1s ease both; }
-.soothly-fade-out { animation: soothly-fade-out 1.1s ease both; }
+.soothly-fade-out { animation: soothly-fade-out 0.45s ease both; }
 .soothly-leave { animation: soothly-leave 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .soothly-breathe { animation: soothly-breathe 2.4s ease-in-out infinite; }
 
