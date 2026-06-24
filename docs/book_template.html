@@ -35,6 +35,7 @@
     --muted:#8A8275;        /* captions / eyebrows */
     --gold:#A87C4F;         /* brass — the "gold" of the nuggets, used sparingly */
     --gold-line:#C9A877;
+    --sage:#9AA888;         /* desaturated leaf green — the botanical foliage */
     --rule:#E2D9C8;
   }
 
@@ -44,27 +45,54 @@
     font-family:"Frank Ruhl Libre", "Noto Serif Hebrew", serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
-    line-height:1.85;
+    line-height:1.72;
   }
 
   /* ---- the "pages" ---- */
+  /* isolation:isolate gives each page its own stacking context so a botanical sprig at z-index:-1
+     paints above the paper fill but beneath the text. */
   .page{
     width:148mm;               /* A5-ish keepsake proportion */
     min-height:210mm;
     margin:14px auto;
     background:var(--paper);
-    padding:26mm 22mm;
+    padding:20mm 18mm;
     position:relative;
+    isolation:isolate;
     box-shadow:0 10px 40px rgba(40,30,15,.16);
     display:flex;
     flex-direction:column;
   }
 
+  /* ---- botanical sprigs (the almond bough, echoing the landing page) ----
+     Decoratives stay inside the page box (offsets >= 0): an absolute element bleeding past the box
+     bottom adds page overflow that can bump a short section onto a near-blank extra sheet. */
+  .page-bough{
+    position:absolute; z-index:-1;
+    width:44mm; height:44mm;
+    bottom:0; inset-inline-end:0;
+    opacity:.13;
+  }
+  .cover-bough{
+    position:absolute; z-index:-1;
+    width:74mm; height:74mm;
+    bottom:2mm; inset-inline-end:2mm;
+    opacity:.5;
+  }
+  .cover-accent{
+    position:absolute; z-index:-1;
+    width:25mm; height:49mm;
+    top:4mm; inset-inline-start:4mm;
+    opacity:.45;
+  }
+  /* the in-flow botanical flourish that replaces a plain rule */
+  .ornament{display:block; height:auto;}
+
   /* eyebrow / utility labels */
   .eyebrow{
     font-family:"Heebo",sans-serif;
     font-size:11px;
-    letter-spacing:.28em;
+    letter-spacing:.2em;
     color:var(--muted);
     font-weight:500;
   }
@@ -73,7 +101,7 @@
   .cover{justify-content:center; text-align:center;}
   .cover .frame{
     border:1px solid var(--gold-line);
-    padding:30mm 14mm;
+    padding:16mm 12mm;
     flex:1;
     display:flex;
     flex-direction:column;
@@ -82,7 +110,7 @@
   }
   .cover .occasion{
     font-family:"Heebo",sans-serif;
-    font-size:12px; letter-spacing:.34em; color:var(--gold);
+    font-size:12px; letter-spacing:.26em; color:var(--gold);
     margin-bottom:30px; font-weight:500;
   }
   .cover h1{
@@ -109,55 +137,59 @@
   .cover .name{
     font-family:"David Libre","Noto Serif Hebrew",serif;font-weight:700;font-size:26px;margin-top:6px;
   }
+  .cover .ornament{width:118px;margin:0 auto 22px;}
 
   /* ---------- OPENING ---------- */
   .opening{justify-content:center;}
   .opening .eyebrow{margin-bottom:22px;}
   .opening p{
-    font-size:18px;line-height:2.05;color:var(--ink);
-    margin:0 0 18px;
+    font-size:17px;line-height:1.8;color:var(--ink);
+    margin:0 0 0.9em;text-align:justify;text-wrap:pretty;
   }
   .opening .lead{
-    font-size:19px;
+    font-size:18px;
   }
+  .opening .ornament{width:144px;margin:26px auto 0;}
 
   /* ---------- CHAPTER ---------- */
-  .chapter .ch-head{margin-bottom:20px;}
+  .chapter .ch-head{margin-bottom:6px;}
   .ch-num{
     font-family:"David Libre","Noto Serif Hebrew",serif;font-weight:700;
-    font-size:40px;color:var(--gold);line-height:1;
-    display:block;margin-bottom:8px;
+    font-size:42px;color:var(--gold);line-height:1;
+    display:block;margin-bottom:10px;
   }
   .ch-title{
     font-family:"Frank Ruhl Libre","Noto Serif Hebrew",serif;font-weight:900;
     font-size:27px;line-height:1.25;margin:0;
   }
-  .ch-rule{height:1px;background:var(--rule);margin:18px 0 22px;}
-  .chapter p{font-size:16.5px;margin:0 0 16px;color:var(--ink-soft);}
+  /* botanical flourish under the chapter title — the almond-bloom divider, replacing a plain rule */
+  .ch-flourish{width:132px;margin:10px 0 16px;}
+  .chapter p{font-size:16.5px;line-height:1.68;margin:0 0 0.8em;color:var(--ink-soft);text-align:justify;text-wrap:pretty;}
   .chapter p strong{color:var(--ink);font-weight:500;}
 
   /* the nugget — "הזהב" — the one signature element */
   .nugget{
-    margin:26px 0 4px;
-    padding:20px 22px 20px 22px;
+    margin:18px 0 2px;
+    padding:16px 20px;
     border-right:3px solid var(--gold);
     background:linear-gradient(90deg, rgba(168,124,79,.07), rgba(168,124,79,0));
   }
   .nugget .label{
-    font-family:"Heebo",sans-serif;font-size:10px;letter-spacing:.3em;
+    font-family:"Heebo",sans-serif;font-size:10px;letter-spacing:.22em;
     color:var(--gold);font-weight:700;display:block;margin-bottom:8px;
   }
   .nugget .line{
     font-family:"Frank Ruhl Libre","Noto Serif Hebrew",serif;font-weight:500;font-style:normal;
-    font-size:19px;line-height:1.6;color:var(--ink);
+    font-size:18.5px;line-height:1.62;color:var(--ink);
   }
 
   /* ---------- CLOSING ---------- */
   .closing{justify-content:center;text-align:center;}
   .closing .eyebrow{margin-bottom:22px;}
-  .closing p{font-size:18px;line-height:2.05;max-width:34ch;margin:0 auto 18px;}
+  .closing p{font-size:17px;line-height:1.8;max-width:34ch;margin:0 auto 0.9em;}
+  .closing .ornament{width:144px;margin:24px auto 0;}
   .closing .signoff{
-    font-family:"David Libre","Noto Serif Hebrew",serif;font-weight:700;font-size:22px;color:var(--gold);margin-top:26px;
+    font-family:"David Libre","Noto Serif Hebrew",serif;font-weight:700;font-size:22px;color:var(--gold);margin-top:24px;
   }
 
   /* page number */
@@ -182,10 +214,14 @@
   }
 
   /* ---------- PRINT ---------- */
-  /* page margins give every printed sheet (incl. mid-chapter breaks) a safe top/bottom inset */
-  @page{ size:148mm 210mm; margin:16mm 0; }
+  /* Full-bleed sheet: @page has NO margin, so the page box IS the whole sheet and the warm paper
+     paints edge-to-edge (an @page margin leaves an unpainted white band the body bg can't reach).
+     Each .page carries its own paper fill + a generous padding inset, so every sheet is full-bleed
+     cream with the text held safely inside. The old min-height:178mm (== the printable area) sat a
+     hair over one page after mm→px rounding and bumped break-inside:avoid callouts onto a near-blank
+     next sheet; min-height:210mm (the full sheet) avoids that and lets short sections fill the page. */
+  @page{ size:148mm 210mm; margin:0; }
   @media print{
-    /* full-bleed warm paper on every page — overflow never lands on white */
     html,body{
       background:var(--paper);
       -webkit-print-color-adjust:exact;
@@ -193,17 +229,18 @@
     }
     .toolbar,.hint{display:none !important;}
     .page{
-      margin:0;box-shadow:none;width:148mm;padding:0 22mm;
+      margin:0;box-shadow:none;width:148mm;min-height:210mm;
+      background:var(--paper);padding:20mm 18mm;
+      /* clone the padding + paper fill onto EVERY fragment, so a chapter that flows to a second
+         sheet keeps the same top/bottom inset instead of hugging the page edge. */
+      -webkit-box-decoration-break:clone;box-decoration-break:clone;
       break-before:page;page-break-before:always;
     }
     .page:first-child{break-before:auto;page-break-before:avoid;}
-    .cover{min-height:178mm;}
-    /* prose holds variable-length synthesized text: flow from the top, grow, and paginate */
-    .opening,.closing,.chapter{display:block;min-height:178mm;}
     /* keep callouts and headings whole across page breaks */
     .nugget{break-inside:avoid;page-break-inside:avoid;}
-    .ch-head{break-after:avoid;page-break-after:avoid;}
-    .chapter p{orphans:2;widows:2;}
+    .ch-head,.ch-flourish{break-after:avoid;page-break-after:avoid;}
+    .chapter p,.opening p,.closing p{orphans:2;widows:2;}
   }
 </style>
 </head>
@@ -214,112 +251,60 @@
 </div>
 <p class="hint">תבנית ספר - אפשר למלא את התוכן מתוך פלט הסינתזה במקום הטקסט הזמני, ואז לבחור "שמירה כ-PDF". הטקסט למטה הוא דוגמה להמחשת המבנה.</p>
 
-<!-- ============ COVER ============ -->
 <section class="page cover">
+  <svg class="cover-accent" viewBox="0 0 52 102" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M8 96 C24 78 30 54 28 26" fill="none" stroke="var(--gold-line)" stroke-width="1.4" stroke-linecap="round"/><path d="M24.0 64.0 C21.5 56.9 10.5 52.3 6.0 52.0 C8.0 56.0 16.5 64.4 24.0 64.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M24.0 64.0 L6.0 52.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M26.0 48.0 C33.6 49.2 43.4 41.8 46.0 38.0 C41.4 37.8 29.6 41.2 26.0 48.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M26.0 48.0 L46.0 38.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M28.0 22.0 C31.7 19.8 29.8 15.4 28.0 14.0 C26.2 15.4 24.3 19.8 28.0 22.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M28.0 22.0 C27.0 17.8 22.3 18.2 20.4 19.5 C21.2 21.7 24.7 24.8 28.0 22.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M28.0 22.0 C23.7 21.6 22.7 26.2 23.3 28.5 C25.6 28.4 29.7 26.0 28.0 22.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M28.0 22.0 C26.3 26.0 30.4 28.4 32.7 28.5 C33.3 26.2 32.3 21.6 28.0 22.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M28.0 22.0 C31.3 24.8 34.8 21.7 35.6 19.5 C33.7 18.2 29.0 17.8 28.0 22.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M28.0 22.0 L30.0 18.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="30.0" cy="18.5" r="0.7" fill="var(--gold)"/><path d="M28.0 22.0 L26.6 18.2" stroke="var(--gold)" stroke-width="0.6"/><circle cx="26.6" cy="18.2" r="0.7" fill="var(--gold)"/><path d="M28.0 22.0 L24.2 20.6" stroke="var(--gold)" stroke-width="0.6"/><circle cx="24.2" cy="20.6" r="0.7" fill="var(--gold)"/><path d="M28.0 22.0 L26.6 25.8" stroke="var(--gold)" stroke-width="0.6"/><circle cx="26.6" cy="25.8" r="0.7" fill="var(--gold)"/><path d="M28.0 22.0 L30.0 25.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="30.0" cy="25.5" r="0.7" fill="var(--gold)"/><circle cx="28.0" cy="22.0" r="1.1" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <svg class="cover-bough" viewBox="0 0 212 212" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M206 206 C176 180 162 156 150 126 C138 96 120 62 94 34" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/><path d="M150 126 C163 112 183 108 200 92" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M134 92 C120 78 100 76 82 62" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M112 56 C104 44 90 38 76 30" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M176.0 110.0 C180.4 118.3 194.5 121.0 200.0 120.0 C196.8 115.4 185.0 107.3 176.0 110.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M176.0 110.0 L200.0 120.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M168.0 120.0 C169.9 129.1 182.6 136.8 188.0 138.0 C186.2 132.7 177.3 121.0 168.0 120.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M168.0 120.0 L188.0 138.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M150.0 126.0 C140.5 127.6 133.0 140.4 132.0 146.0 C137.5 144.4 149.4 135.6 150.0 126.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M150.0 126.0 L132.0 146.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M96.0 62.0 C93.7 54.5 82.6 50.1 78.0 50.0 C79.9 54.2 88.2 62.8 96.0 62.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M96.0 62.0 L78.0 50.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M92.0 66.0 C83.6 66.7 75.6 77.3 74.0 82.0 C78.9 81.0 90.3 74.2 92.0 66.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M92.0 66.0 L74.0 82.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M120.0 80.0 C128.7 79.6 136.6 68.9 138.0 64.0 C132.9 64.8 121.4 71.4 120.0 80.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M120.0 80.0 L138.0 64.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M60.0 48.0 C61.5 45.1 58.6 42.9 56.9 42.5 C56.2 44.2 56.8 47.8 60.0 48.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M196.0 118.0 C198.7 119.4 200.9 116.7 201.2 115.0 C199.6 114.5 196.2 115.0 196.0 118.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><g><path d="M94.0 34.0 C100.0 30.4 97.0 23.3 94.0 21.0 C91.0 23.3 88.0 30.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C92.4 27.2 84.8 27.9 81.6 30.0 C82.9 33.5 88.7 38.6 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C87.0 33.4 85.3 40.9 86.4 44.5 C90.2 44.4 96.7 40.5 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C91.3 40.5 97.8 44.4 101.6 44.5 C102.7 40.9 101.0 33.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C99.3 38.6 105.1 33.5 106.4 30.0 C103.2 27.9 95.6 27.2 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 L97.3 28.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="28.4" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 27.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="27.9" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L87.9 31.8" stroke="var(--gold)" stroke-width="0.6"/><circle cx="87.9" cy="31.8" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 40.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="40.1" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L97.3 39.6" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="39.6" r="1.2" fill="var(--gold)"/><circle cx="94.0" cy="34.0" r="1.8" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M200.0 92.0 C204.4 89.3 202.2 84.2 200.0 82.5 C197.8 84.2 195.6 89.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.8 87.0 193.3 87.5 191.0 89.1 C191.9 91.7 196.1 95.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C194.9 91.6 193.7 97.0 194.4 99.7 C197.2 99.6 202.0 96.7 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.0 96.7 202.8 99.6 205.6 99.7 C206.3 97.0 205.1 91.6 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C203.9 95.3 208.1 91.7 209.0 89.1 C206.7 87.5 201.2 87.0 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 L202.4 87.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="87.9" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 87.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="87.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L195.5 90.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="195.5" cy="90.4" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 96.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="96.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L202.4 96.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="96.1" r="0.9" fill="var(--gold)"/><circle cx="200.0" cy="92.0" r="1.3" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M76.0 30.0 C80.6 27.2 78.3 21.8 76.0 20.0 C73.7 21.8 71.4 27.2 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C74.8 24.8 68.9 25.3 66.5 26.9 C67.5 29.7 71.9 33.5 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C70.6 29.6 69.3 35.3 70.1 38.1 C73.0 38.0 78.1 35.0 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C73.9 35.0 79.0 38.0 81.9 38.1 C82.7 35.3 81.4 29.6 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C80.1 33.5 84.5 29.7 85.5 26.9 C83.1 25.3 77.2 24.8 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 L78.5 25.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="25.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 25.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="25.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L71.3 28.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="71.3" cy="28.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 34.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="34.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L78.5 34.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="34.3" r="0.9" fill="var(--gold)"/><circle cx="76.0" cy="30.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M150.0 126.0 C153.9 123.6 152.0 119.0 150.0 117.5 C148.0 119.0 146.1 123.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.9 121.5 144.0 122.0 141.9 123.4 C142.8 125.7 146.5 129.0 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C145.4 125.6 144.3 130.5 145.0 132.9 C147.5 132.8 151.8 130.2 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.2 130.2 152.5 132.8 155.0 132.9 C155.7 130.5 154.6 125.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C153.5 129.0 157.2 125.7 158.1 123.4 C156.0 122.0 151.1 121.5 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 L152.1 122.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="122.3" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 122.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="122.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L146.0 124.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="146.0" cy="124.5" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 130.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="130.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L152.1 129.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="129.7" r="0.8" fill="var(--gold)"/><circle cx="150.0" cy="126.0" r="1.2" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
   <div class="frame">
-    <div class="occasion">לרגל השחרור</div>
-    <!-- [TITLE] -->
-    <h1>הרעש שמתחת<br>לשקט</h1>
-    <p class="sub">דפוסים, החלטות והדברים שלמדת על עצמך — בלי לשים לב</p>
-    <div class="mark"></div>
-    <!-- NAME -->
-    <div class="name">לנועה</div>
-  </div>
-</section>
-
-<!-- ============ OPENING ============ -->
+  <svg class="ornament" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <div class="occasion">ספר אישי</div>
+  <h1>הרעש שמתחת לשקט</h1>
+  <p class="sub">דפוסים, החלטות והדברים שלמדת על עצמך - בלי לשים לב</p>
+  <div class="mark"></div>
+  <div class="name">לנועה</div>
+</div></section>
 <section class="page opening">
   <div class="eyebrow">פתח דבר</div>
-  <!-- [OPENING] -->
-  <p class="lead">נועה, את עומדת עכשיו על סף. מאחורייך שלוש שנים שלא תמיד בחרת, ולפנייך
-    שנים שכן. בין שני אלה יש רגע קצר — בדיוק הרגע הזה — שבו אפשר להסתכל אחורה ולראות
-    לא רק מה עשית, אלא מי הפכת להיות תוך כדי.</p>
-  <p>הספר הזה לא מספר לך מה קרה. את היית שם. הוא מנסה לעשות משהו אחר: לקחת את הסיפורים
-    שכתבת, ולמצוא בהם את החוטים שחוזרים — אלה שקשה לראות כשאת בתוך התמונה. חלק מהם יפתיעו
-    אותך. חלק כבר ידעת, אבל לא במילים.</p>
-  <p>תקראי לאט. זה לא מבחן, ואין כאן ציון. יש כאן רק את — כפי שאת נראית מבחוץ, לרגע אחד.</p>
+  <p class="lead">נועה, את עומדת עכשיו על סף. מאחורייך שלוש שנים שלא תמיד בחרת, ולפנייך שנים שכן. בין שני אלה יש רגע קצר - בדיוק הרגע הזה - שבו אפשר להסתכל אחורה ולראות לא רק מה עשית, אלא מי הפכת להיות תוך כדי.</p>
+  <p>הספר הזה לא מספר לך מה קרה. את היית שם. הוא מנסה לעשות משהו אחר: לקחת את הסיפורים שכתבת, ולמצוא בהם את החוטים שחוזרים - אלה שקשה לראות כשאת בתוך התמונה.</p>
+  <p>תקראי לאט. זה לא מבחן, ואין כאן ציון. יש כאן רק את - כפי שאת נראית מבחוץ, לרגע אחד.</p>
+  <svg class="ornament" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
   <div class="folio">·</div>
 </section>
-
-<!-- ============ CHAPTER 1 ============ -->
 <section class="page chapter">
-  <div class="ch-head">
-    <!-- [CH1_NUM] / [CH1_TITLE] -->
-    <span class="ch-num">01</span>
-    <h2 class="ch-title">המנוע שקראת לו חוסר שקט</h2>
-  </div>
-  <div class="ch-rule"></div>
-  <!-- [CH1_BODY] -->
-  <p>שלוש פעמים זה חזר בתשובות שלך, ולא שמת לב. בטירונות, כשביקשת לעבור למחלקה
-    מאתגרת יותר. בקורס, כשסיימת ראשונה והרגשת <strong>"ריק במקום גאווה"</strong>. וברגע
-    שהחלטת לא לחתום — דווקא כשהכל סוף סוף הסתדר.</p>
-  <p>קראת לזה חוסר שקט, וכתבת את זה כאילו זו חולשה. אבל מי שקורא את שלושת הסיפורים
-    יחד רואה משהו אחר לגמרי. זה לא בריחה מדברים. זו יכולת נדירה לדעת מתי משהו כבר נתן
-    לך את כל מה שהיה לו לתת — ולא להישאר שם רק כי נוח.</p>
-  <p>הסכנה שלך לא תהיה חוסר שקט. היא תהיה היום שבו תבלבלי בין "סיימתי כאן" לבין
-    "ברחתי מכאן". ההבדל ביניהם הוא כל הסיפור של חמש השנים הבאות.</p>
-  <div class="nugget">
-    <span class="label">הזהב</span>
-    <!-- [CH1_NUGGET] -->
-    <span class="line">מה שנראה לך כמו "לא לסיים דברים" הוא בעצם היכולת לדעת מתי דבר
-      כבר נתן לך את כל מה שהיה לו לתת.</span>
-  </div>
+  <svg class="page-bough" viewBox="0 0 212 212" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M206 206 C176 180 162 156 150 126 C138 96 120 62 94 34" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/><path d="M150 126 C163 112 183 108 200 92" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M134 92 C120 78 100 76 82 62" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M112 56 C104 44 90 38 76 30" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M176.0 110.0 C180.4 118.3 194.5 121.0 200.0 120.0 C196.8 115.4 185.0 107.3 176.0 110.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M176.0 110.0 L200.0 120.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M168.0 120.0 C169.9 129.1 182.6 136.8 188.0 138.0 C186.2 132.7 177.3 121.0 168.0 120.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M168.0 120.0 L188.0 138.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M150.0 126.0 C140.5 127.6 133.0 140.4 132.0 146.0 C137.5 144.4 149.4 135.6 150.0 126.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M150.0 126.0 L132.0 146.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M96.0 62.0 C93.7 54.5 82.6 50.1 78.0 50.0 C79.9 54.2 88.2 62.8 96.0 62.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M96.0 62.0 L78.0 50.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M92.0 66.0 C83.6 66.7 75.6 77.3 74.0 82.0 C78.9 81.0 90.3 74.2 92.0 66.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M92.0 66.0 L74.0 82.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M120.0 80.0 C128.7 79.6 136.6 68.9 138.0 64.0 C132.9 64.8 121.4 71.4 120.0 80.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M120.0 80.0 L138.0 64.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M60.0 48.0 C61.5 45.1 58.6 42.9 56.9 42.5 C56.2 44.2 56.8 47.8 60.0 48.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M196.0 118.0 C198.7 119.4 200.9 116.7 201.2 115.0 C199.6 114.5 196.2 115.0 196.0 118.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><g><path d="M94.0 34.0 C100.0 30.4 97.0 23.3 94.0 21.0 C91.0 23.3 88.0 30.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C92.4 27.2 84.8 27.9 81.6 30.0 C82.9 33.5 88.7 38.6 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C87.0 33.4 85.3 40.9 86.4 44.5 C90.2 44.4 96.7 40.5 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C91.3 40.5 97.8 44.4 101.6 44.5 C102.7 40.9 101.0 33.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C99.3 38.6 105.1 33.5 106.4 30.0 C103.2 27.9 95.6 27.2 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 L97.3 28.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="28.4" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 27.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="27.9" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L87.9 31.8" stroke="var(--gold)" stroke-width="0.6"/><circle cx="87.9" cy="31.8" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 40.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="40.1" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L97.3 39.6" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="39.6" r="1.2" fill="var(--gold)"/><circle cx="94.0" cy="34.0" r="1.8" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M200.0 92.0 C204.4 89.3 202.2 84.2 200.0 82.5 C197.8 84.2 195.6 89.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.8 87.0 193.3 87.5 191.0 89.1 C191.9 91.7 196.1 95.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C194.9 91.6 193.7 97.0 194.4 99.7 C197.2 99.6 202.0 96.7 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.0 96.7 202.8 99.6 205.6 99.7 C206.3 97.0 205.1 91.6 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C203.9 95.3 208.1 91.7 209.0 89.1 C206.7 87.5 201.2 87.0 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 L202.4 87.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="87.9" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 87.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="87.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L195.5 90.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="195.5" cy="90.4" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 96.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="96.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L202.4 96.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="96.1" r="0.9" fill="var(--gold)"/><circle cx="200.0" cy="92.0" r="1.3" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M76.0 30.0 C80.6 27.2 78.3 21.8 76.0 20.0 C73.7 21.8 71.4 27.2 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C74.8 24.8 68.9 25.3 66.5 26.9 C67.5 29.7 71.9 33.5 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C70.6 29.6 69.3 35.3 70.1 38.1 C73.0 38.0 78.1 35.0 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C73.9 35.0 79.0 38.0 81.9 38.1 C82.7 35.3 81.4 29.6 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C80.1 33.5 84.5 29.7 85.5 26.9 C83.1 25.3 77.2 24.8 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 L78.5 25.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="25.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 25.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="25.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L71.3 28.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="71.3" cy="28.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 34.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="34.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L78.5 34.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="34.3" r="0.9" fill="var(--gold)"/><circle cx="76.0" cy="30.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M150.0 126.0 C153.9 123.6 152.0 119.0 150.0 117.5 C148.0 119.0 146.1 123.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.9 121.5 144.0 122.0 141.9 123.4 C142.8 125.7 146.5 129.0 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C145.4 125.6 144.3 130.5 145.0 132.9 C147.5 132.8 151.8 130.2 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.2 130.2 152.5 132.8 155.0 132.9 C155.7 130.5 154.6 125.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C153.5 129.0 157.2 125.7 158.1 123.4 C156.0 122.0 151.1 121.5 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 L152.1 122.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="122.3" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 122.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="122.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L146.0 124.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="146.0" cy="124.5" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 130.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="130.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L152.1 129.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="129.7" r="0.8" fill="var(--gold)"/><circle cx="150.0" cy="126.0" r="1.2" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <div class="ch-head"><span class="ch-num">01</span><h2 class="ch-title">המנוע שקראת לו חוסר שקט</h2></div>
+  <svg class="ch-flourish" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <p>שלוש פעמים זה חזר בתשובות שלך, ולא שמת לב. בטירונות, כשביקשת לעבור למחלקה מאתגרת יותר. בקורס, כשסיימת ראשונה והרגשת ריק במקום גאווה.</p>
+  <p>קראת לזה חוסר שקט, וכתבת את זה כאילו זו חולשה. אבל מי שקורא את שלושת הסיפורים יחד רואה משהו אחר לגמרי. זו יכולת נדירה לדעת מתי משהו כבר נתן לך את כל מה שהיה לו לתת.</p>
+  <p>הסכנה שלך לא תהיה חוסר שקט. היא תהיה היום שבו תבלבלי בין סיימתי כאן לבין ברחתי מכאן.</p>
+  <div class="nugget"><span class="label">הזהב</span><span class="line">מה שנראה לך כמו לא לסיים דברים הוא בעצם היכולת לדעת מתי דבר כבר נתן לך את כל מה שהיה לו לתת.</span></div>
   <div class="folio">01</div>
 </section>
-
-<!-- ============ CHAPTER 2 ============ -->
 <section class="page chapter">
-  <div class="ch-head">
-    <span class="ch-num">02</span>
-    <h2 class="ch-title">מה שעשית כשאף אחד לא ביקש</h2>
-  </div>
-  <div class="ch-rule"></div>
-  <p>הרגע הכי קשה שתיארת לא היה רגע שבו נכשלת. הוא היה הלילה שבו <strong>נשארת עם
-    החיילת החדשה אחרי המשמרת</strong>, כי ראית שהיא עומדת להישבר — ואף אחד לא הטיל
-    עלייך את זה.</p>
-  <p>שמת לב שזה חוזר? במקומות שונים, אותו דבר: את מזהה את האדם שכולם מפספסים, וניגשת.
-    זה לא רשום בשום הערכה מפקדים. אבל זה אולי הדבר הכי עקבי שעשית בשירות.</p>
-  <p>זה גם מה שאנשים, לדברייך, "לא מבינים נכון" — הם חושבים שאת רכה. את לא רכה. את
-    פשוט שמה לב למה שאחרים לא טורחים לראות, ואז עושה עם זה משהו.</p>
-  <div class="nugget">
-    <span class="label">הזהב</span>
-    <span class="line">היכולת לראות את מי שכולם מפספסים היא לא רכות — היא סוג של מנהיגות
-      שאין לה תג.</span>
-  </div>
+  <svg class="page-bough" viewBox="0 0 212 212" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M206 206 C176 180 162 156 150 126 C138 96 120 62 94 34" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/><path d="M150 126 C163 112 183 108 200 92" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M134 92 C120 78 100 76 82 62" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M112 56 C104 44 90 38 76 30" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M176.0 110.0 C180.4 118.3 194.5 121.0 200.0 120.0 C196.8 115.4 185.0 107.3 176.0 110.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M176.0 110.0 L200.0 120.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M168.0 120.0 C169.9 129.1 182.6 136.8 188.0 138.0 C186.2 132.7 177.3 121.0 168.0 120.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M168.0 120.0 L188.0 138.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M150.0 126.0 C140.5 127.6 133.0 140.4 132.0 146.0 C137.5 144.4 149.4 135.6 150.0 126.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M150.0 126.0 L132.0 146.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M96.0 62.0 C93.7 54.5 82.6 50.1 78.0 50.0 C79.9 54.2 88.2 62.8 96.0 62.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M96.0 62.0 L78.0 50.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M92.0 66.0 C83.6 66.7 75.6 77.3 74.0 82.0 C78.9 81.0 90.3 74.2 92.0 66.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M92.0 66.0 L74.0 82.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M120.0 80.0 C128.7 79.6 136.6 68.9 138.0 64.0 C132.9 64.8 121.4 71.4 120.0 80.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M120.0 80.0 L138.0 64.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M60.0 48.0 C61.5 45.1 58.6 42.9 56.9 42.5 C56.2 44.2 56.8 47.8 60.0 48.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M196.0 118.0 C198.7 119.4 200.9 116.7 201.2 115.0 C199.6 114.5 196.2 115.0 196.0 118.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><g><path d="M94.0 34.0 C100.0 30.4 97.0 23.3 94.0 21.0 C91.0 23.3 88.0 30.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C92.4 27.2 84.8 27.9 81.6 30.0 C82.9 33.5 88.7 38.6 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C87.0 33.4 85.3 40.9 86.4 44.5 C90.2 44.4 96.7 40.5 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C91.3 40.5 97.8 44.4 101.6 44.5 C102.7 40.9 101.0 33.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C99.3 38.6 105.1 33.5 106.4 30.0 C103.2 27.9 95.6 27.2 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 L97.3 28.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="28.4" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 27.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="27.9" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L87.9 31.8" stroke="var(--gold)" stroke-width="0.6"/><circle cx="87.9" cy="31.8" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 40.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="40.1" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L97.3 39.6" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="39.6" r="1.2" fill="var(--gold)"/><circle cx="94.0" cy="34.0" r="1.8" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M200.0 92.0 C204.4 89.3 202.2 84.2 200.0 82.5 C197.8 84.2 195.6 89.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.8 87.0 193.3 87.5 191.0 89.1 C191.9 91.7 196.1 95.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C194.9 91.6 193.7 97.0 194.4 99.7 C197.2 99.6 202.0 96.7 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.0 96.7 202.8 99.6 205.6 99.7 C206.3 97.0 205.1 91.6 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C203.9 95.3 208.1 91.7 209.0 89.1 C206.7 87.5 201.2 87.0 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 L202.4 87.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="87.9" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 87.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="87.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L195.5 90.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="195.5" cy="90.4" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 96.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="96.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L202.4 96.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="96.1" r="0.9" fill="var(--gold)"/><circle cx="200.0" cy="92.0" r="1.3" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M76.0 30.0 C80.6 27.2 78.3 21.8 76.0 20.0 C73.7 21.8 71.4 27.2 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C74.8 24.8 68.9 25.3 66.5 26.9 C67.5 29.7 71.9 33.5 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C70.6 29.6 69.3 35.3 70.1 38.1 C73.0 38.0 78.1 35.0 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C73.9 35.0 79.0 38.0 81.9 38.1 C82.7 35.3 81.4 29.6 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C80.1 33.5 84.5 29.7 85.5 26.9 C83.1 25.3 77.2 24.8 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 L78.5 25.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="25.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 25.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="25.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L71.3 28.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="71.3" cy="28.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 34.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="34.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L78.5 34.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="34.3" r="0.9" fill="var(--gold)"/><circle cx="76.0" cy="30.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M150.0 126.0 C153.9 123.6 152.0 119.0 150.0 117.5 C148.0 119.0 146.1 123.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.9 121.5 144.0 122.0 141.9 123.4 C142.8 125.7 146.5 129.0 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C145.4 125.6 144.3 130.5 145.0 132.9 C147.5 132.8 151.8 130.2 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.2 130.2 152.5 132.8 155.0 132.9 C155.7 130.5 154.6 125.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C153.5 129.0 157.2 125.7 158.1 123.4 C156.0 122.0 151.1 121.5 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 L152.1 122.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="122.3" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 122.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="122.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L146.0 124.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="146.0" cy="124.5" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 130.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="130.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L152.1 129.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="129.7" r="0.8" fill="var(--gold)"/><circle cx="150.0" cy="126.0" r="1.2" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <div class="ch-head"><span class="ch-num">02</span><h2 class="ch-title">מה שעשית כשאף אחד לא ביקש</h2></div>
+  <svg class="ch-flourish" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <p>הרגע הכי קשה שתיארת לא היה רגע שבו נכשלת. הוא היה הלילה שבו נשארת עם החיילת החדשה אחרי המשמרת, כי ראית שהיא עומדת להישבר.</p>
+  <p>שמת לב שזה חוזר? במקומות שונים, אותו דבר: את מזהה את האדם שכולם מפספסים, וניגשת. זה לא רשום בשום הערכת מפקדים.</p>
+  <p>זה גם מה שאנשים לא מבינים נכון - הם חושבים שאת רכה. את לא רכה. את פשוט שמה לב למה שאחרים לא טורחים לראות.</p>
+  <div class="nugget"><span class="label">הזהב</span><span class="line">היכולת לראות את מי שכולם מפספסים היא לא רכות - היא סוג של מנהיגות שאין לה תג.</span></div>
   <div class="folio">02</div>
 </section>
-
-<!-- ============ CHAPTER 3 ============ -->
 <section class="page chapter">
-  <div class="ch-head">
-    <span class="ch-num">03</span>
-    <h2 class="ch-title">הפחד שכבר התאמנת עליו</h2>
-  </div>
-  <div class="ch-rule"></div>
-  <p>כתבת שאת הכי חוששת מ<strong>"להתחיל מאפס במקום שאף אחד לא מכיר אותי"</strong>.
-    הוגן לפחד מזה. אבל שווה לזכור משהו שכתבת שני עמודים קודם, בלי לקשר.</p>
-  <p>לפני שלוש שנים נכנסת לבסיס שבו לא הכרת נפש אחת. גם אז לא ידעת מה את עושה. ועדיין —
-    מצאת את האנשים שלך, מצאת תפקיד, ובנית מעמד מאפס. כבר עשית בדיוק את הדבר שממנו את
-    מפחדת. פעם אחת לפחות, וכנראה יותר.</p>
-  <p>הפחד אמיתי. אבל הוא לא מדויק. את לא מתחילה מאפס — את מתחילה עם ניסיון שלם של מישהי
-    שכבר נחתה בעולם זר והפכה אותו לבית.</p>
-  <div class="nugget">
-    <span class="label">הזהב</span>
-    <span class="line">כבר עשית את הדבר שממנו את מפחדת. השאלה היא לא אם תצליחי — אלא אם
-      תזכרי שכבר הצלחת.</span>
-  </div>
+  <svg class="page-bough" viewBox="0 0 212 212" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M206 206 C176 180 162 156 150 126 C138 96 120 62 94 34" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round"/><path d="M150 126 C163 112 183 108 200 92" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M134 92 C120 78 100 76 82 62" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M112 56 C104 44 90 38 76 30" fill="none" stroke="var(--gold-line)" stroke-width="1.3" stroke-linecap="round"/><path d="M176.0 110.0 C180.4 118.3 194.5 121.0 200.0 120.0 C196.8 115.4 185.0 107.3 176.0 110.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M176.0 110.0 L200.0 120.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M168.0 120.0 C169.9 129.1 182.6 136.8 188.0 138.0 C186.2 132.7 177.3 121.0 168.0 120.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M168.0 120.0 L188.0 138.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M150.0 126.0 C140.5 127.6 133.0 140.4 132.0 146.0 C137.5 144.4 149.4 135.6 150.0 126.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M150.0 126.0 L132.0 146.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M96.0 62.0 C93.7 54.5 82.6 50.1 78.0 50.0 C79.9 54.2 88.2 62.8 96.0 62.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M96.0 62.0 L78.0 50.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M92.0 66.0 C83.6 66.7 75.6 77.3 74.0 82.0 C78.9 81.0 90.3 74.2 92.0 66.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M92.0 66.0 L74.0 82.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M120.0 80.0 C128.7 79.6 136.6 68.9 138.0 64.0 C132.9 64.8 121.4 71.4 120.0 80.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M120.0 80.0 L138.0 64.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M60.0 48.0 C61.5 45.1 58.6 42.9 56.9 42.5 C56.2 44.2 56.8 47.8 60.0 48.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M196.0 118.0 C198.7 119.4 200.9 116.7 201.2 115.0 C199.6 114.5 196.2 115.0 196.0 118.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><g><path d="M94.0 34.0 C100.0 30.4 97.0 23.3 94.0 21.0 C91.0 23.3 88.0 30.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C92.4 27.2 84.8 27.9 81.6 30.0 C82.9 33.5 88.7 38.6 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C87.0 33.4 85.3 40.9 86.4 44.5 C90.2 44.4 96.7 40.5 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C91.3 40.5 97.8 44.4 101.6 44.5 C102.7 40.9 101.0 33.4 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 C99.3 38.6 105.1 33.5 106.4 30.0 C103.2 27.9 95.6 27.2 94.0 34.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M94.0 34.0 L97.3 28.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="28.4" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 27.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="27.9" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L87.9 31.8" stroke="var(--gold)" stroke-width="0.6"/><circle cx="87.9" cy="31.8" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L91.8 40.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="91.8" cy="40.1" r="1.2" fill="var(--gold)"/><path d="M94.0 34.0 L97.3 39.6" stroke="var(--gold)" stroke-width="0.6"/><circle cx="97.3" cy="39.6" r="1.2" fill="var(--gold)"/><circle cx="94.0" cy="34.0" r="1.8" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M200.0 92.0 C204.4 89.3 202.2 84.2 200.0 82.5 C197.8 84.2 195.6 89.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.8 87.0 193.3 87.5 191.0 89.1 C191.9 91.7 196.1 95.3 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C194.9 91.6 193.7 97.0 194.4 99.7 C197.2 99.6 202.0 96.7 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C198.0 96.7 202.8 99.6 205.6 99.7 C206.3 97.0 205.1 91.6 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 C203.9 95.3 208.1 91.7 209.0 89.1 C206.7 87.5 201.2 87.0 200.0 92.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M200.0 92.0 L202.4 87.9" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="87.9" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 87.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="87.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L195.5 90.4" stroke="var(--gold)" stroke-width="0.6"/><circle cx="195.5" cy="90.4" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L198.4 96.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="198.4" cy="96.5" r="0.9" fill="var(--gold)"/><path d="M200.0 92.0 L202.4 96.1" stroke="var(--gold)" stroke-width="0.6"/><circle cx="202.4" cy="96.1" r="0.9" fill="var(--gold)"/><circle cx="200.0" cy="92.0" r="1.3" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M76.0 30.0 C80.6 27.2 78.3 21.8 76.0 20.0 C73.7 21.8 71.4 27.2 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C74.8 24.8 68.9 25.3 66.5 26.9 C67.5 29.7 71.9 33.5 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C70.6 29.6 69.3 35.3 70.1 38.1 C73.0 38.0 78.1 35.0 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C73.9 35.0 79.0 38.0 81.9 38.1 C82.7 35.3 81.4 29.6 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 C80.1 33.5 84.5 29.7 85.5 26.9 C83.1 25.3 77.2 24.8 76.0 30.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M76.0 30.0 L78.5 25.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="25.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 25.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="25.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L71.3 28.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="71.3" cy="28.3" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L74.3 34.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="74.3" cy="34.7" r="0.9" fill="var(--gold)"/><path d="M76.0 30.0 L78.5 34.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="78.5" cy="34.3" r="0.9" fill="var(--gold)"/><circle cx="76.0" cy="30.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g><g><path d="M150.0 126.0 C153.9 123.6 152.0 119.0 150.0 117.5 C148.0 119.0 146.1 123.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.9 121.5 144.0 122.0 141.9 123.4 C142.8 125.7 146.5 129.0 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C145.4 125.6 144.3 130.5 145.0 132.9 C147.5 132.8 151.8 130.2 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C148.2 130.2 152.5 132.8 155.0 132.9 C155.7 130.5 154.6 125.6 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 C153.5 129.0 157.2 125.7 158.1 123.4 C156.0 122.0 151.1 121.5 150.0 126.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M150.0 126.0 L152.1 122.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="122.3" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 122.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="122.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L146.0 124.5" stroke="var(--gold)" stroke-width="0.6"/><circle cx="146.0" cy="124.5" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L148.5 130.0" stroke="var(--gold)" stroke-width="0.6"/><circle cx="148.5" cy="130.0" r="0.8" fill="var(--gold)"/><path d="M150.0 126.0 L152.1 129.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="152.1" cy="129.7" r="0.8" fill="var(--gold)"/><circle cx="150.0" cy="126.0" r="1.2" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <div class="ch-head"><span class="ch-num">03</span><h2 class="ch-title">הפחד שכבר התאמנת עליו</h2></div>
+  <svg class="ch-flourish" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
+  <p>כתבת שאת הכי חוששת מלהתחיל מאפס במקום שאף אחד לא מכיר אותי. הוגן לפחד מזה.</p>
+  <p>לפני שלוש שנים נכנסת לבסיס שבו לא הכרת נפש אחת. ועדיין מצאת את האנשים שלך, ובנית מעמד מאפס. כבר עשית בדיוק את הדבר שממנו את מפחדת.</p>
+  <p>הפחד אמיתי. אבל הוא לא מדויק. את לא מתחילה מאפס - את מתחילה עם ניסיון שלם.</p>
+  <div class="nugget"><span class="label">הזהב</span><span class="line">כבר עשית את הדבר שממנו את מפחדת. השאלה היא לא אם תצליחי - אלא אם תזכרי שכבר הצלחת.</span></div>
   <div class="folio">03</div>
 </section>
-
-<!-- ============ CLOSING ============ -->
 <section class="page closing">
   <div class="eyebrow">ולסיום</div>
-  <!-- [CLOSING] -->
-  <p>שלוש השנים האלה לא נתנו לך רק זיכרונות. הן נתנו לך כמה דברים שאת עוד לא יודעת
-    שיש לך — היכולת לדעת מתי לעזוב, העין שרואה את מי שכולם מפספסים, והניסיון שכבר
-    הוכיח לך שאת יודעת לנחות בזרים.</p>
+  <p>שלוש השנים האלה לא נתנו לך רק זיכרונות. הן נתנו לך כמה דברים שאת עוד לא יודעת שיש לך - היכולת לדעת מתי לעזוב, העין שרואה את מי שכולם מפספסים.</p>
   <p>אף אחד מהם לא ייעלם כשתורידי את המדים. הם נשארים. הם שלך עכשיו.</p>
-  <div class="signoff">בהצלחה בצד השני של הסף.</div>
+  <svg class="ornament" viewBox="0 0 200 40" fill="none" stroke-linejoin="round" aria-hidden="true"><path d="M14 20 L78 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M122 20 L186 20" stroke="var(--gold-line)" stroke-width="1" stroke-linecap="round"/><path d="M78.0 20.0 C75.7 15.0 67.3 11.4 64.0 11.0 C65.7 13.9 72.5 20.0 78.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M78.0 20.0 L64.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><path d="M122.0 20.0 C127.5 20.0 134.3 13.9 136.0 11.0 C132.7 11.4 124.3 15.0 122.0 20.0 Z" fill="none" stroke="var(--sage)" stroke-width="1.1"/><path d="M122.0 20.0 L136.0 11.0" stroke="var(--sage)" stroke-width="0.7" opacity="0.8"/><g><path d="M100.0 20.0 C104.6 17.2 102.3 11.8 100.0 10.0 C97.7 11.8 95.4 17.2 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C98.8 14.8 92.9 15.3 90.5 16.9 C91.5 19.7 95.9 23.5 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C94.6 19.6 93.3 25.3 94.1 28.1 C97.0 28.0 102.1 25.0 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C97.9 25.0 103.0 28.0 105.9 28.1 C106.7 25.3 105.4 19.6 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 C104.1 23.5 108.5 19.7 109.5 16.9 C107.1 15.3 101.2 14.8 100.0 20.0 Z" fill="none" stroke="var(--gold-line)" stroke-width="0.8"/><path d="M100.0 20.0 L102.5 15.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="15.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 15.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="15.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L95.3 18.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="95.3" cy="18.3" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L98.3 24.7" stroke="var(--gold)" stroke-width="0.6"/><circle cx="98.3" cy="24.7" r="0.9" fill="var(--gold)"/><path d="M100.0 20.0 L102.5 24.3" stroke="var(--gold)" stroke-width="0.6"/><circle cx="102.5" cy="24.3" r="0.9" fill="var(--gold)"/><circle cx="100.0" cy="20.0" r="1.4" fill="none" stroke="var(--gold)" stroke-width="0.7"/></g></svg>
   <div class="folio">·</div>
 </section>
 
