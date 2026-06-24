@@ -360,7 +360,7 @@ export default function InterviewPage() {
           <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1] sm:text-5xl">הספר של <bdi>{intake.name}</bdi></h1>
           <div className="mx-auto my-7 h-px w-10 bg-gold-line" />
           {assistantText && (
-            <p className="whitespace-pre-line font-serif text-lg leading-loose text-ink-soft">{assistantText}</p>
+            <p className="whitespace-pre-line font-serif text-base leading-loose text-ink-soft">{assistantText}</p>
           )}
           <BookPanel book={book} onRetry={() => void makeBook()} />
           {book.status !== "generating" && (
@@ -426,7 +426,7 @@ export default function InterviewPage() {
         {thinking && !assistantText ? (
           <div className="my-6 h-3 w-3 rounded-full bg-gold soothly-breathe" aria-label="קוראים את מה שסיפרת" />
         ) : (
-          <h2 key={messages.length} className="soothly-rise font-serif text-2xl leading-relaxed text-ink sm:text-[28px] sm:leading-relaxed">
+          <h2 key={messages.length} className="soothly-rise font-serif text-xl leading-relaxed text-ink sm:text-2xl sm:leading-relaxed">
             {assistantText}
           </h2>
         )}
@@ -445,7 +445,7 @@ export default function InterviewPage() {
             disabled={busy || voiceActive}
             rows={1}
             placeholder="כמה שבא לך לכתוב - גם שורה אחת מספיקה"
-            className="block max-h-[45vh] w-full resize-none overflow-y-auto border-b border-rule bg-transparent pb-3 font-sans text-lg leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-muted/55 focus:border-gold-line disabled:opacity-50"
+            className="block max-h-[45vh] w-full resize-none overflow-y-auto border-b border-rule bg-transparent pb-3 font-sans text-base leading-relaxed text-ink outline-none transition-colors duration-300 placeholder:text-muted/55 focus:border-gold-line disabled:opacity-50"
             style={{ minHeight: "2.5rem" }}
             autoFocus
           />
@@ -591,8 +591,7 @@ function Welcome({
           </div>
         )}
 
-        <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר אישי</p>
-        <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1]">ספר החיים שלך, בקולך</h1>
+        <h1 className="font-display font-bold text-4xl leading-[1.1]">ספר החיים שלך, בקולך</h1>
         <p className="mt-5 font-sans leading-relaxed text-ink-soft">
           הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק - רק שלך.
         </p>
@@ -607,7 +606,7 @@ function Welcome({
               value={intake.name}
               onChange={(e) => setIntake({ ...intake, name: e.target.value })}
               required
-              className="w-full border-b border-rule bg-transparent pb-2 font-serif text-xl text-ink outline-none focus:border-gold-line"
+              className="w-full border-b border-rule bg-transparent pb-2 font-serif text-lg text-ink outline-none focus:border-gold-line"
             />
           </label>
 
@@ -635,12 +634,14 @@ function Welcome({
             <span className="mb-2 block font-sans text-sm text-muted">מה הגיל שלך?</span>
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={1}
               max={120}
               value={intake.age}
               onChange={(e) => setIntake({ ...intake, age: e.target.value })}
               required
-              className="w-28 border-b border-rule bg-transparent pb-2 font-serif text-xl text-ink outline-none focus:border-gold-line"
+              className="w-28 border-b border-rule bg-transparent pb-2 font-serif text-lg text-ink outline-none focus:border-gold-line"
             />
           </label>
 

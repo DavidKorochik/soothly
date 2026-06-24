@@ -32,7 +32,7 @@ function buildHtml(name: string, url: string): string {
               <td>
                 <h1 style="margin:0 0 24px;font-size:26px;font-weight:normal;color:#2b2620;">הספר שלך מוכן</h1>
                 <p style="margin:0 0 16px;font-size:17px;line-height:1.8;">שלום ${safeName},</p>
-                <p style="margin:0 0 16px;font-size:17px;line-height:1.8;">עברנו על התשובות שלך והפכנו אותן לספר אישי, שנכתב מתוך מה שסיפרת. הוא מוכן עכשיו ומחכה לך.</p>
+                <p style="margin:0 0 16px;font-size:17px;line-height:1.8;">עברנו על התשובות שלך והפכנו אותן לספר שנכתב מתוך מה שסיפרת. הוא מוכן עכשיו ומחכה לך.</p>
                 <p style="margin:0 0 28px;font-size:17px;line-height:1.8;">אין למה למהר. אפשר לפתוח אותו כאן:</p>
                 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
                   <tr>
@@ -58,7 +58,7 @@ function buildText(name: string, url: string): string {
   return [
     `שלום ${name},`,
     "",
-    "עברנו על התשובות שלך והפכנו אותן לספר אישי, שנכתב מתוך מה שסיפרת. הוא מוכן עכשיו ומחכה לך.",
+    "עברנו על התשובות שלך והפכנו אותן לספר שנכתב מתוך מה שסיפרת. הוא מוכן עכשיו ומחכה לך.",
     "",
     "אין למה למהר. אפשר לפתוח אותו כאן:",
     url,

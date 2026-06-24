@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Soothly",
     short_name: "Soothly",
-    description: "ספר אישי - הסיפור שלך, כפי שנראה מבחוץ.",
+    description: "הסיפור שלך, כפי שנראה מבחוץ.",
     lang: "he",
     dir: "rtl",
     start_url: "/",
