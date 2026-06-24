@@ -19,7 +19,7 @@ const USER_MESSAGE: Record<TranscriptionErrorCode, string> = {
   too_large: "ההקלטה ארוכה מדי לתמלול. אפשר להקליט קטע קצר יותר, או להקליד.",
   unsupported_format: "פורמט ההקלטה לא נתמך. אפשר להקליד את התשובה.",
   no_provider_key: "התמלול לא זמין כרגע. אפשר להקליד את התשובה.",
-  provider_failed: "התמלול נכשל. נסו שוב או הקלידו ידנית.",
+  provider_failed: "התמלול נכשל. אפשר לנסות שוב או להקליד.",
 };
 
 export class TranscriptionError extends Error {

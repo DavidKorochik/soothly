@@ -71,7 +71,6 @@ function cover(book: Book, name: string): string {
   ${bough("cover-bough")}
   <div class="frame">
   ${divider("ornament")}
-  <div class="occasion">ספר אישי</div>
   <h1>${esc(book.title)}</h1>
   ${book.subtitle ? `<p class="sub">${esc(book.subtitle)}</p>` : ""}
   <div class="mark"></div>
