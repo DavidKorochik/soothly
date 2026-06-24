@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { START, type EngineState } from "@/lib/interview/engine";
 import { buildAnswers, SKIP_MARKER } from "@/lib/interview/answers";
 import { addBook, parseBooks, type SavedBook } from "@/lib/interview/books";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
-import { MicButton, VoiceStatusLine, type VoiceUiState } from "./MicButton";
+import { MicButton, MicHint, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
 import PaperField from "@/app/components/PaperField";
 import BrandMark from "@/app/components/BrandMark";
@@ -45,6 +45,7 @@ type BookState =
 
 const STORAGE_KEY = "soothly_interview_v2";
 const BOOKS_STORAGE_KEY = "soothly_books_v1";
+const MIC_HINT_KEY = "soothly_mic_hint_seen_v1";
 
 export default function InterviewPage() {
   const [step, setStep] = useState<Step>("welcome");
@@ -58,6 +59,7 @@ export default function InterviewPage() {
   const [resumable, setResumable] = useState<Saved | null>(null);
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [voice, setVoice] = useState<VoiceUiState>({ status: "idle", errorMessage: null, seconds: 0 });
+  const [micHintSeen, setMicHintSeen] = useState(false);
   const [book, setBook] = useState<BookState>({ status: "idle" });
   const [books, setBooks] = useState<SavedBook[]>([]);
   const bookStartedRef = useRef(false);
@@ -70,6 +72,7 @@ export default function InterviewPage() {
     // download link and they can open a past book or start a new one. (book_key is persisted
     // server-side too, but there's no lookup route yet.)
     setBooks(parseBooks(localStorage.getItem(BOOKS_STORAGE_KEY)));
+    if (localStorage.getItem(MIC_HINT_KEY)) setMicHintSeen(true);
 
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
@@ -233,6 +236,22 @@ export default function InterviewPage() {
     }
   }
 
+  // Persist that the mic nudge has been seen so it shows at most once per device, never nagging on a
+  // later interview. localStorage may throw in private mode - then it simply shows again, no harm.
+  const dismissMicHint = useCallback(() => {
+    setMicHintSeen(true);
+    try {
+      localStorage.setItem(MIC_HINT_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  // Dictation fills the box without an onChange, so retire the nudge here once the mic is in use.
+  useEffect(() => {
+    if (voice.status !== "idle" && !micHintSeen) dismissMicHint();
+  }, [voice.status, micHintSeen, dismissMicHint]);
+
   async function begin() {
     if (!intake.name.trim() || !intake.age) return;
     setResumable(null);
@@ -380,6 +399,18 @@ export default function InterviewPage() {
   const label = chapterLabel(engine);
   const nearGoal = progress(engine) >= 0.8;
   const voiceActive = voice.status === "requesting" || voice.status === "recording" || voice.status === "transcribing";
+  // The mic nudge: only on the very first question, once the question has finished appearing and
+  // before any typing or recording - so it lands exactly when the person first faces the empty box.
+  const showMicHint =
+    voiceSupported &&
+    !micHintSeen &&
+    !lastUser &&
+    !!assistantText &&
+    !current?.error &&
+    !thinking &&
+    !busy &&
+    !input.trim() &&
+    voice.status === "idle";
 
   function onVoiceTranscript(text: string) {
     setInput((prev) => appendDictation(prev, text));
@@ -435,7 +466,10 @@ export default function InterviewPage() {
           <textarea
             ref={taRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (!micHintSeen) dismissMicHint();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -460,7 +494,10 @@ export default function InterviewPage() {
             </button>
             <div className="flex shrink-0 items-center gap-3">
               {voiceSupported && (
-                <MicButton sessionId={sessionId} disabled={busy} onTranscript={onVoiceTranscript} onState={setVoice} />
+                <div className="relative">
+                  <MicButton sessionId={sessionId} disabled={busy} onTranscript={onVoiceTranscript} onState={setVoice} />
+                  {showMicHint && <MicHint onDismiss={dismissMicHint} />}
+                </div>
               )}
               <button
                 onClick={() => void send()}

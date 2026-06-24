@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MAX_RECORD_SECONDS, useRecorder, type RecorderStatus } from "./useRecorder";
 
 export type VoiceUiState = { status: RecorderStatus; errorMessage: string | null; seconds: number };
@@ -61,6 +61,39 @@ export function MicButton({
         <MicGlyph />
       )}
     </button>
+  );
+}
+
+// A one-time nudge above the mic on the very first question: writing can be tiring, so you can
+// just talk instead. The downward tail points at the mic. Typing or recording clears it at once
+// (the parent unmounts it); the × fades it out first - mirroring the fade-in - then dismisses.
+export function MicHint({ onDismiss }: { onDismiss: () => void }) {
+  const [closing, setClosing] = useState(false);
+  return (
+    <div
+      role="status"
+      onAnimationEnd={() => {
+        if (closing) onDismiss();
+      }}
+      className={`${closing ? "soothly-fade-out" : "soothly-fade"} pointer-events-none absolute bottom-full left-0 z-20 mb-3 w-56 max-w-[calc(100vw-2rem)] rounded-2xl border border-gold-line bg-paper py-3 pl-6 pr-4 text-right shadow-[0_10px_30px_rgba(27,26,23,0.12)]`}
+    >
+      <button
+        type="button"
+        onClick={() => setClosing(true)}
+        aria-label="סגירה"
+        className="pointer-events-auto absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-muted transition-colors hover:text-ink-soft"
+      >
+        <span className="text-base leading-none">×</span>
+      </button>
+      <p className="font-sans text-xs leading-relaxed text-ink-soft">
+        <span className="mb-0.5 block font-medium text-ink">אין כוח לכתוב?</span>
+        אפשר פשוט לספר בקול.
+      </p>
+      <span
+        aria-hidden
+        className="absolute -bottom-1.5 left-5 h-3 w-3 rotate-45 border-b border-r border-gold-line bg-paper"
+      />
+    </div>
   );
 }
 
