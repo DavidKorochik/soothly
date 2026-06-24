@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         sessionId,
         event: "voice_transcribed",
         meta: { bytes: audio.size, chars: text.length },
-      }).catch(() => {});
+      });
     }
     return Response.json({ text });
   } catch (error) {
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
           sessionId,
           event: "voice_transcribe_failed",
           meta: { code: error.code },
-        }).catch(() => {});
+        });
       }
       return Response.json({ error: error.userMessage }, { status: error.status });
     }

@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ADD COLUMN "book_key" text;

@@ -15,6 +15,7 @@ export const sessions = pgTable("sessions", {
   gender: genderEnum("gender").notNull(),
   age: integer("age").notNull(),
   status: sessionStatusEnum("status").notNull().default("in_progress"),
+  bookKey: text("book_key"), // set once the book is synthesized + stored - links the session to its PDF
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
