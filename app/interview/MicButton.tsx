@@ -65,7 +65,7 @@ export function MicButton({
 }
 
 // Lives below the controls row, full width. One calm line: privacy when idle, a timer while
-// listening, "מתמללים…" while transcribing, and a warm gold (never red) line on error.
+// listening, "מתמללים" while transcribing, and a warm gold (never red) line on error.
 export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState) {
   if (status === "error" && errorMessage) {
     return (
@@ -75,12 +75,12 @@ export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState)
     );
   }
   if (status === "requesting") {
-    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">רגע, פותחים את המיקרופון…</p>;
+    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">רגע, פותחים את המיקרופון</p>;
   }
   if (status === "recording") {
     return (
       <p aria-live="polite" className="mt-6 font-sans text-xs leading-relaxed text-muted">
-        <span className="tabular-nums text-ink-soft">{fmt(seconds)}</span> · מקשיבים. דברו כמה שבא לכם.
+        <span className="tabular-nums text-ink-soft">{fmt(seconds)}</span> · מקשיבים. אפשר לדבר כמה שבא לך.
         {seconds >= MAX_RECORD_SECONDS - 30 && (
           <span className="mt-1 block text-gold">אפשר לעצור ולהמשיך בכתב, או להקליט עוד רגע.</span>
         )}
@@ -88,7 +88,7 @@ export function VoiceStatusLine({ status, errorMessage, seconds }: VoiceUiState)
     );
   }
   if (status === "transcribing") {
-    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">מתמללים…</p>;
+    return <p aria-live="polite" className="mt-6 font-sans text-xs text-muted">מתמללים</p>;
   }
   return (
     <p className="mt-6 font-sans text-xs leading-relaxed text-muted">

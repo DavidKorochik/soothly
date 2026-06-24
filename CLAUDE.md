@@ -66,7 +66,7 @@ User-facing Hebrew is product surface, not a translation dump. Write it like a w
 
 - **No slash-gender forms.** `את/ה`, `כתוב/י`, `תחליט/י`, `בן/בת` read as bureaucratic and cringe. For **static** copy (the welcome/landing screens, before gender is known), phrase gender-neutrally instead: infinitives (`לחלוק`, `לכתוב`), impersonal `אפשר` (`אפשר לדלג`), and nominal phrases (`ההחלטה ... רק שלך`, `מה הגיל שלך?`). Unvocalized 2nd-person past is already gender-neutral in writing (`השארת`, `סיפרת`) — those are fine. **Dynamic** interview copy may use the real gender from intake, since it's known by then.
 - **Plain hyphen `-` only — never em/en dash (`—` `–`).** Author UI strings with `-` from the start. The book pipeline auto-strips `[—–]` → `-` from synthesized copy (`lib/pdf/template.ts`), but hardcoded UI strings skip that, so don't introduce them.
-- **Warm and premium, not clinical.** Avoid label-speak like the old `ספר הדפוסים` kicker; prefer human phrasing (`ספר אישי`). No filler, no marketing gloss.
+- **Warm and premium, not clinical.** Avoid label-speak kickers like the old `ספר הדפוסים`; prefer warm, human phrasing - or no kicker at all. No filler, no marketing gloss.
 
 ## Working practices
 
