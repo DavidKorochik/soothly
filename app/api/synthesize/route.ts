@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   try {
     input = InputSchema.parse(await req.json());
   } catch {
-    return NextResponse.json({ status: "error", message: "קלט לא תקין" }, { status: 400 });
+    return NextResponse.json({ status: "error", message: "משהו לא נראה תקין. אפשר לנסות שוב." }, { status: 400 });
   }
 
   const safety = await runSafetyCheck(input.answers);
@@ -37,6 +37,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: "ok", url, title: book.title, chapters: book.chapters.length });
   } catch (error) {
     console.error("synthesis pipeline failed", error);
-    return NextResponse.json({ status: "error", message: "משהו השתבש ביצירת הספר" }, { status: 500 });
+    return NextResponse.json({ status: "error", message: "משהו השתבש ביצירת הספר. אפשר לנסות שוב." }, { status: 500 });
   }
 }

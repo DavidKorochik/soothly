@@ -443,8 +443,7 @@ function Welcome({
           </div>
         )}
 
-        <p className="font-sans text-xs tracking-[0.3em] text-muted">ספר אישי</p>
-        <h1 className="mt-4 font-display font-bold text-4xl leading-[1.1]">ספר החיים שלך, בקולך</h1>
+        <h1 className="font-display font-bold text-4xl leading-[1.1]">ספר החיים שלך, בקולך</h1>
         <p className="mt-5 font-sans leading-relaxed text-ink-soft">
           הסיפורים שלך נשארים שלך. ההחלטה עם מי לחלוק - רק שלך.
         </p>

@@ -49,7 +49,7 @@ export function useRecorder(opts: { sessionId?: string; onTranscript: (text: str
         const res = await fetch("/api/interview/transcribe", { method: "POST", body: form });
         const json = (await res.json().catch(() => null)) as { text?: string; error?: string } | null;
         if (!res.ok || !json || typeof json.text !== "string") {
-          set("error", json?.error ?? "התמלול נכשל. נסו שוב או הקלידו ידנית.");
+          set("error", json?.error ?? "התמלול נכשל. אפשר לנסות שוב או להקליד.");
           return;
         }
         onTranscriptRef.current(json.text);

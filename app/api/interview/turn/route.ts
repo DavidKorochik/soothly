@@ -35,14 +35,14 @@ export async function POST(req: Request) {
   try {
     body = Schema.parse(await req.json());
   } catch {
-    return Response.json({ error: "קלט לא תקין" }, { status: 400 });
+    return Response.json({ error: "משהו לא נראה תקין. אפשר לנסות שוב." }, { status: 400 });
   }
 
   const { sessionId, gender, name, messages, engine } = body;
   const theme = themeByKey(engine.current);
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
-  if (!theme || !lastUser) return Response.json({ error: "מצב לא תקין" }, { status: 400 });
+  if (!theme || !lastUser) return Response.json({ error: "משהו השתבש. אפשר לרענן ולהמשיך." }, { status: 400 });
 
   // Plan the turn: read the answer for depth, what it already told, whether to stay on this thread, and
   // which reachable theme is most alive next. A skip is never planned (null plan -> the engine advances).

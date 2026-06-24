@@ -14,12 +14,12 @@ export async function POST(req: Request) {
   try {
     form = await req.formData();
   } catch {
-    return Response.json({ error: "קלט לא תקין" }, { status: 400 });
+    return Response.json({ error: "משהו לא נראה תקין. אפשר לנסות שוב." }, { status: 400 });
   }
 
   const audio = form.get("audio");
   if (!(audio instanceof Blob)) {
-    return Response.json({ error: "קלט לא תקין" }, { status: 400 });
+    return Response.json({ error: "משהו לא נראה תקין. אפשר לנסות שוב." }, { status: 400 });
   }
 
   const rawSessionId = form.get("sessionId");
@@ -48,6 +48,6 @@ export async function POST(req: Request) {
       return Response.json({ error: error.userMessage }, { status: error.status });
     }
     console.error("transcription route failed", error);
-    return Response.json({ error: "התמלול נכשל. נסו שוב או הקלידו ידנית." }, { status: 500 });
+    return Response.json({ error: "התמלול נכשל. אפשר לנסות שוב או להקליד." }, { status: 500 });
   }
 }

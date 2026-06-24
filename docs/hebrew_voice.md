@@ -47,7 +47,7 @@ Inspirational-poster abstraction. The whole promise of a keepsake is specificity
 | הספר הזה הוא מסע מעצים אל האני האותנטי שלך - הזדמנות לצמיחה | הספר הזה מספר את הסיפור שלך - כמו שהוא, במילים שלך |
 | צא למסע קסום אל נבכי נשמתך וגלה את האור הפנימי שלך | נדבר על הדברים שחזרת אליהם שוב ושוב, ועל מה שלמדת מהם |
 | כל אחד מאיתנו נושא בתוכו סיפור, ובסופו של דבר מגיע לו לספר אותו | לכל חיים יש פרטים שאף אחד אחר לא יזכור במקומך |
-| ספר חם, אישי ומרגש, שמספר, מתעד ושומר את הרגעים הגדולים והקטנים | ספר אישי, מהרגעים הגדולים ומאלה שכמעט שכחת |
+| ספר חם, אישי ומרגש, שמספר, מתעד ושומר את הרגעים הגדולים והקטנים | ספר על הרגעים הגדולים ועל אלה שכמעט שכחת |
 
 Cut empty intensifiers (`ממש`, `באמת באמת`, `פשוט קסום`, `חוויה בלתי נשכחת`) and brand-gloss (`הפתרון המושלם עבורך`). Break the rule-of-three triad - keep one or two precise words, not three padding ones.
 
@@ -138,7 +138,7 @@ For STATIC copy (before gender is known), pick the technique by surface. These r
 - **No exclamation stacks, no emoji warmth, no decorative `...`.** One quiet warm line, then get out of the way.
 - **The AI is never the emotional subject.** It arranges and reflects; it does not "understand," "feel," or "know" the person.
 - **Concrete over abstract.** No `מסע` / `צמיחה` / `נבכי הנשמה` / `כל אחד מאיתנו`. Name the particular.
-- **No `ספר הדפוסים`-style label-speak kicker.** Prefer human phrasing like `ספר אישי`.
+- **No `ספר הדפוסים`-style label-speak kicker.** Prefer warm, human phrasing - or no kicker at all.
 
 ## 7. Pre-ship cringe checklist
 

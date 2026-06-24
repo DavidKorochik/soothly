@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   try {
     input = Schema.parse(await req.json());
   } catch {
-    return Response.json({ error: "קלט לא תקין" }, { status: 400 });
+    return Response.json({ error: "משהו לא נראה תקין. אפשר לנסות שוב." }, { status: 400 });
   }
 
   const sessionId = await createSession(input);

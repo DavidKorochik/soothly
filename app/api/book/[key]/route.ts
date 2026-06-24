@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ key: st
     stream = await readPdf(key);
   } catch (error) {
     console.error("book retrieval failed", error);
-    return new Response("שגיאה בשליפת הספר", { status: 500 });
+    return new Response("משהו השתבש בטעינת הספר. אפשר לנסות שוב.", { status: 500 });
   }
 
   if (!stream) {
