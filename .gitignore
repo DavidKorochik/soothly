@@ -73,3 +73,12 @@ temp/
 # Project artifacts
 state/
 digests/
+
+# Hebrew model A/B eval - generated books and any real transcripts contain people's stories. Never
+# commit. The synthetic example-*.json fixtures are safe and stay tracked.
+scripts/hebrew-ab/.runs/
+scripts/hebrew-ab/fixtures/*.json
+# Whitelist the exact synthetic fixtures by name - a glob (example-*.json) would let a real
+# transcript misnamed "example-*.json" slip into git. Add a line here for any new synthetic fixture.
+!scripts/hebrew-ab/fixtures/example-male-rich.json
+!scripts/hebrew-ab/fixtures/example-female-thin.json
