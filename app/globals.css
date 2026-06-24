@@ -66,6 +66,8 @@ button:not(:disabled),
 .paper-wash--focused { opacity: 0.3; }
 
 .paper-sprig { opacity: 0.5; }
+/* On the interview screen the flowers stay, but recede to faint margin atmosphere behind the question. */
+.paper-sprig--focused { opacity: 0.16; }
 
 /* Motes animate only transform + opacity (GPU-compositable); slow enough to read as atmosphere. */
 .paper-mote {
