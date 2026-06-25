@@ -7,6 +7,7 @@ import { addBook, parseBooks, type SavedBook } from "@/lib/interview/books";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
 import { MicButton, MicHint, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
+import { safeStorage } from "@/lib/safeStorage";
 import PaperField from "@/app/components/PaperField";
 import BrandMark from "@/app/components/BrandMark";
 
@@ -35,7 +36,7 @@ type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender; age: string };
 type Msg = { role: "assistant" | "user"; content: string; error?: boolean };
 type Step = "welcome" | "talking" | "done";
-type Saved = { intake: Intake; sessionId: string; engine: EngineState; messages: Msg[] };
+type Saved = { intake: Intake; sessionId: string; engine: EngineState; messages: Msg[]; step: Step };
 type BookState =
   | { status: "idle" }
   | { status: "generating" }
@@ -71,25 +72,43 @@ export default function InterviewPage() {
     // The user's library of finished books, surfaced on the welcome screen so a refresh never loses a
     // download link and they can open a past book or start a new one. (book_key is persisted
     // server-side too, but there's no lookup route yet.)
-    setBooks(parseBooks(localStorage.getItem(BOOKS_STORAGE_KEY)));
-    if (localStorage.getItem(MIC_HINT_KEY)) setMicHintSeen(true);
+    setBooks(parseBooks(safeStorage.get(BOOKS_STORAGE_KEY)));
+    if (safeStorage.get(MIC_HINT_KEY)) setMicHintSeen(true);
 
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = safeStorage.get(STORAGE_KEY);
     if (!raw) return;
     try {
       const s = JSON.parse(raw) as Saved;
-      if (s?.messages?.length) setResumable(s);
+      if (!s?.messages?.length) return;
+      if (s.step === "done") {
+        // A reload during the "writing your book" wait must not lose a finished interview: restore
+        // straight to the done screen, which regenerates the book from the preserved transcript.
+        setIntake(s.intake);
+        setSessionId(s.sessionId);
+        setEngine(s.engine);
+        setMessages(s.messages);
+        setStep("done");
+      } else {
+        setResumable(s);
+      }
     } catch {
-      localStorage.removeItem(STORAGE_KEY);
+      safeStorage.remove(STORAGE_KEY);
     }
   }, []);
 
   useEffect(() => {
-    if (step === "talking" && messages.length) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ intake, sessionId, engine, messages }));
+    // Keep the transcript saved through "done" so a reload mid-generation can recover it; the saved
+    // step lets the reload land back on the done screen instead of the interview.
+    if ((step === "talking" || step === "done") && messages.length) {
+      safeStorage.set(STORAGE_KEY, JSON.stringify({ intake, sessionId, engine, messages, step }));
     }
-    if (step === "done") localStorage.removeItem(STORAGE_KEY);
   }, [step, intake, sessionId, engine, messages]);
+
+  // Clear the saved interview only once the book is delivered (ready) or safety-blocked (flagged) -
+  // both terminal, nothing left to recover. An error keeps it so a retry or reload can resume.
+  useEffect(() => {
+    if (book.status === "ready" || book.status === "flagged") safeStorage.remove(STORAGE_KEY);
+  }, [book.status]);
 
   // Once the interview completes, synthesize the book and reveal a download link on the done screen.
   // The ref guard fires it exactly once; messages/sessionId/intake are final by the time step is "done".
@@ -237,14 +256,10 @@ export default function InterviewPage() {
   }
 
   // Persist that the mic nudge has been seen so it shows at most once per device, never nagging on a
-  // later interview. localStorage may throw in private mode - then it simply shows again, no harm.
+  // later interview. safeStorage is a no-op if storage is unavailable - then it simply shows again, no harm.
   const dismissMicHint = useCallback(() => {
     setMicHintSeen(true);
-    try {
-      localStorage.setItem(MIC_HINT_KEY, "1");
-    } catch {
-      /* ignore */
-    }
+    safeStorage.set(MIC_HINT_KEY, "1");
   }, []);
 
   // Dictation fills the box without an onChange, so retire the nudge here once the mic is in use.
@@ -294,7 +309,7 @@ export default function InterviewPage() {
           createdAt: Date.now(),
         };
         const next = addBook(books, entry);
-        localStorage.setItem(BOOKS_STORAGE_KEY, JSON.stringify(next));
+        safeStorage.set(BOOKS_STORAGE_KEY, JSON.stringify(next));
         setBooks(next);
         setBook({ status: "ready", url: data.url });
       } else if (data?.status === "flagged" && typeof data.message === "string") {
@@ -320,6 +335,7 @@ export default function InterviewPage() {
   // Leave the done screen for a fresh interview without touching the saved library, so a person can
   // make a book for another phase of life (or another subject) and keep the ones they already made.
   function startNew() {
+    safeStorage.remove(STORAGE_KEY); // explicit discard, regardless of book state
     setBook({ status: "idle" });
     bookStartedRef.current = false;
     setMessages([]);
@@ -362,7 +378,7 @@ export default function InterviewPage() {
   }
 
   if (step === "welcome") {
-    return <Welcome intake={intake} setIntake={setIntake} onBegin={begin} resumable={resumable} onResume={resume} onFresh={() => { localStorage.removeItem(STORAGE_KEY); setResumable(null); }} books={books} />;
+    return <Welcome intake={intake} setIntake={setIntake} onBegin={begin} resumable={resumable} onResume={resume} onFresh={() => { safeStorage.remove(STORAGE_KEY); setResumable(null); }} books={books} />;
   }
 
   const current = messages[messages.length - 1];
@@ -428,7 +444,7 @@ export default function InterviewPage() {
   return (
     <main className="soothly-fade relative isolate flex min-h-dvh flex-col">
       <PaperField surface="focused" />
-      <div className="fixed inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
+      <div className="sticky inset-x-0 top-0 z-10 bg-paper/85 backdrop-blur-sm">
         <div className="mx-auto max-w-2xl px-6 pb-3 pt-5">
           <div className="mb-2 flex items-baseline justify-between">
             <span key={label} className="soothly-fade font-sans text-sm tracking-[0.04em] text-ink-soft">{label}</span>
@@ -620,7 +636,7 @@ function Welcome({
                     rel="noreferrer"
                     className="font-serif text-base text-ink underline-offset-4 transition-colors hover:text-gold hover:underline"
                   >
-                    {b.title || `הספר של ${b.name}`}{b.age ? ` · גיל ${b.age}` : ""} ↗
+                    {b.title || <>הספר של <bdi>{b.name}</bdi></>}{b.age ? ` · גיל ${b.age}` : ""} ↗
                   </a>
                 </li>
               ))}

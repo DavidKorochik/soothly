@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateBook } from "@/lib/synthesis/pipeline";
-import { setBookKey } from "@/lib/db/queries";
+import { getSessionBook, setBookKey } from "@/lib/db/queries";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,6 +25,16 @@ export async function POST(req: Request) {
 
   const { sessionId, ...synthInput } = input;
   try {
+    // Idempotency: a reload during the long synthesis wait re-POSTs here. If this session already has a
+    // synthesized book, serve it instead of re-running the full safety + ~180s synthesis + PDF pipeline
+    // (a fresh, billed generation under a new key). Lookup fails open, so a DB hiccup just regenerates.
+    if (sessionId) {
+      const existing = await getSessionBook(sessionId);
+      if (existing?.status === "synthesized" && existing.bookKey) {
+        return NextResponse.json({ status: "ok", url: `/api/book/${existing.bookKey}` });
+      }
+    }
+
     const result = await generateBook(synthInput);
     if (result.status === "flagged") {
       return NextResponse.json({ status: "flagged", message: result.message });

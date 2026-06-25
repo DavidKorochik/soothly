@@ -48,10 +48,37 @@ export async function logFunnel(input: {
   }
 }
 
+// Best-effort: mark the session completed. Never throws - this status write runs on the final turn,
+// after the answer is already saved, so a transient DB failure here must not 500 the turn and show
+// the user an error right when they have actually finished the interview.
 export async function completeSession(sessionId: string): Promise<void> {
-  if (!persistenceEnabled()) return;
-  const db = await getDb();
-  await withRetry(() => db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId)));
+  try {
+    if (!persistenceEnabled()) return;
+    const db = await getDb();
+    await withRetry(() => db.update(sessions).set({ status: "completed", updatedAt: new Date() }).where(eq(sessions.id, sessionId)));
+  } catch (err) {
+    console.error("[completeSession] non-fatal completion write failed", { sessionId, err });
+  }
+}
+
+// Look up a session's synthesis result so the synthesize route can serve an already-made book instead
+// of regenerating it (a reload during the long synthesis wait re-POSTs synthesize). Returns null when
+// persistence is off or on any error - the caller then generates normally, so a lookup hiccup never
+// blocks book delivery.
+export async function getSessionBook(
+  sessionId: string,
+): Promise<{ status: string; bookKey: string | null } | null> {
+  try {
+    if (!persistenceEnabled()) return null;
+    const db = await getDb();
+    const [row] = await withRetry(() =>
+      db.select({ status: sessions.status, bookKey: sessions.bookKey }).from(sessions).where(eq(sessions.id, sessionId)),
+    );
+    return row ?? null;
+  } catch (err) {
+    console.error("[getSessionBook] non-fatal session lookup failed", { sessionId, err });
+    return null;
+  }
 }
 
 // Best-effort: link the stored book to its session and mark it synthesized. Never throws - a link

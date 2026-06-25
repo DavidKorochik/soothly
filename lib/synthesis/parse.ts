@@ -8,13 +8,18 @@ export type Book = {
   closing: string;
 };
 
-// The synthesis prompt emits sections tagged with [MARKER] tokens (see docs/synthesis_prompt_v2.md).
-// Split the text at each marker and map marker -> the text up to the next marker.
+// The markers the synthesis prompt emits (see docs/synthesis_prompt_v2.md). ONLY these split the
+// text - a stray bracketed token in prose (e.g. "[NOTE]" or "[01]") is left as content, never
+// treated as a section boundary that would truncate a chapter.
+const KNOWN_MARKER = /^(TITLE|OPENING|CLOSING|CH\d+_(NUM|TITLE|BODY|NUGGET))$/;
+
+// Split the text at each recognized [MARKER] and map marker -> the text up to the next one.
 function extractMarkers(raw: string): Map<string, string> {
   const re = /\[([A-Z0-9_]+)\]/g;
   const hits: { name: string; contentStart: number; markerStart: number }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(raw)) !== null) {
+    if (!KNOWN_MARKER.test(m[1])) continue;
     hits.push({ name: m[1], contentStart: re.lastIndex, markerStart: m.index });
   }
   const map = new Map<string, string>();
@@ -31,8 +36,22 @@ function must(map: Map<string, string>, name: string): string {
   return v;
 }
 
+// The chapter numbers actually present, ascending - tolerant of a gap (a skipped CHn) rather than
+// stopping at the first missing index and silently dropping every chapter after it.
+function chapterNumbers(map: Map<string, string>): number[] {
+  const nums = new Set<number>();
+  for (const key of map.keys()) {
+    const cm = key.match(/^CH(\d+)_/);
+    if (cm) nums.add(Number(cm[1]));
+  }
+  return [...nums].sort((a, b) => a - b);
+}
+
 export function parseBook(raw: string): Book {
-  const m = extractMarkers(raw);
+  // Strip a stray Markdown code fence if the model ever wraps its output in one, so [TITLE] is still
+  // the first thing parsed instead of being buried after a ``` line.
+  const cleaned = raw.replace(/^\s*```[a-z]*\s*\n/i, "").replace(/\n```\s*$/i, "");
+  const m = extractMarkers(cleaned);
 
   const titleBlock = must(m, "TITLE")
     .split("\n")
@@ -41,10 +60,10 @@ export function parseBook(raw: string): Book {
   if (titleBlock.length === 0) throw new Error("synthesis output has an empty [TITLE]");
 
   const chapters: Chapter[] = [];
-  for (let i = 1; ; i++) {
+  for (const i of chapterNumbers(m)) {
     const title = m.get(`CH${i}_TITLE`);
     const body = m.get(`CH${i}_BODY`);
-    if (!title && !body) break;
+    if (!title && !body) continue;
     chapters.push({
       num: m.get(`CH${i}_NUM`) ?? String(i).padStart(2, "0"),
       title: title ?? "",

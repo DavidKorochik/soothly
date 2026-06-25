@@ -49,6 +49,51 @@ test("parseBook: keeps multi-paragraph bodies intact", () => {
   assert.ok(book.chapters[0].body.includes("\n"));
 });
 
+const GAP_CHAPTERS = `
+[TITLE]
+כותרת
+[OPENING]
+פתיחה
+[CH1_TITLE] פרק ראשון
+[CH1_BODY] גוף ראשון
+[CH3_TITLE] פרק שלישי
+[CH3_BODY] גוף שלישי
+[CLOSING]
+סיום
+`;
+
+test("parseBook: keeps chapters even when the numbering skips one", () => {
+  const book = parseBook(GAP_CHAPTERS);
+  assert.equal(book.chapters.length, 2);
+  assert.equal(book.chapters[0].title, "פרק ראשון");
+  assert.equal(book.chapters[1].title, "פרק שלישי");
+});
+
+const STRAY_TOKEN = `
+[TITLE]
+כותרת
+[OPENING]
+פתיחה
+[CH1_TITLE] פרק
+[CH1_BODY] התחלת הגוף [NOTE] המשך הגוף
+[CLOSING]
+סיום
+`;
+
+test("parseBook: a stray bracketed token in prose stays content, not a section boundary", () => {
+  const book = parseBook(STRAY_TOKEN);
+  assert.equal(book.chapters.length, 1);
+  assert.match(book.chapters[0].body, /התחלת הגוף/);
+  assert.match(book.chapters[0].body, /המשך הגוף/); // text after the stray token is not dropped
+});
+
+test("parseBook: tolerates output wrapped in a Markdown code fence", () => {
+  const fenced = "```markdown\n" + WELL_FORMED.trim() + "\n```";
+  const book = parseBook(fenced);
+  assert.equal(book.title, "הרעש שמתחת לשקט");
+  assert.equal(book.chapters.length, 2);
+});
+
 const MISSING_CLOSING = `
 [TITLE]
 כותרת

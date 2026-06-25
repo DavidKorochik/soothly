@@ -28,6 +28,11 @@ export async function runSafetyCheck(answers: string): Promise<SafetyDecision> {
       system: loadPrompt(),
       prompt: answers,
       temperature: 0,
+      // generateObject ignores `timeout`, so bound the only unbounded model call in the pipeline via
+      // abortSignal — a hung classifier must not silently eat the synthesize route's 300s budget. On
+      // timeout this throws and we fail CLOSED below, exactly as for any other classifier failure.
+      maxRetries: 1,
+      abortSignal: AbortSignal.timeout(20000),
     });
     return decide(object);
   } catch (error) {
