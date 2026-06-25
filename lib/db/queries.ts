@@ -61,6 +61,26 @@ export async function completeSession(sessionId: string): Promise<void> {
   }
 }
 
+// Look up a session's synthesis result so the synthesize route can serve an already-made book instead
+// of regenerating it (a reload during the long synthesis wait re-POSTs synthesize). Returns null when
+// persistence is off or on any error - the caller then generates normally, so a lookup hiccup never
+// blocks book delivery.
+export async function getSessionBook(
+  sessionId: string,
+): Promise<{ status: string; bookKey: string | null } | null> {
+  try {
+    if (!persistenceEnabled()) return null;
+    const db = await getDb();
+    const [row] = await withRetry(() =>
+      db.select({ status: sessions.status, bookKey: sessions.bookKey }).from(sessions).where(eq(sessions.id, sessionId)),
+    );
+    return row ?? null;
+  } catch (err) {
+    console.error("[getSessionBook] non-fatal session lookup failed", { sessionId, err });
+    return null;
+  }
+}
+
 // Best-effort: link the stored book to its session and mark it synthesized. Never throws - a link
 // failure must not deny the user the book they just generated (the key is still returned to them).
 // TODO(accounts): scope this to the session owner once auth exists - today any caller with a valid
