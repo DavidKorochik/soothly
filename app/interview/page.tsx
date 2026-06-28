@@ -700,7 +700,7 @@ function Welcome({
 
           <button
             type="submit"
-            disabled={leaving || !intake.gender}
+            disabled={leaving || !intake.name.trim() || !intake.age || !intake.gender}
             className="mt-2 rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90 disabled:opacity-40"
           >
             מתחילים
