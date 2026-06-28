@@ -5,7 +5,7 @@ import { getSessionBook, setBookKey } from "@/lib/db/queries";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 300; // long-form synthesis; the gate is validated locally where no cap applies
+export const maxDuration = 600; // long-form synthesis; Fluid Compute (enabled) lifts the Pro cap past 300s so the ~315s worst case has headroom
 
 const InputSchema = z.object({
   sessionId: z.string().uuid().optional(), // present from the interview; absent from the internal test page
