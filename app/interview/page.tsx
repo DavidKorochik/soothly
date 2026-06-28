@@ -5,6 +5,7 @@ import { START, type EngineState } from "@/lib/interview/engine";
 import { buildAnswers, SKIP_MARKER } from "@/lib/interview/answers";
 import { addBook, parseBooks, type SavedBook } from "@/lib/interview/books";
 import { chapterLabel, chapterFills, progress } from "@/lib/interview/chapters";
+import { MAX_POLL_MS } from "@/lib/synthesis/timing";
 import { MicButton, MicHint, VoiceStatusLine, type VoiceUiState } from "./MicButton";
 import { isRecordingSupported } from "./recorderMime";
 import { safeStorage } from "@/lib/safeStorage";
@@ -48,6 +49,12 @@ const STORAGE_KEY = "soothly_interview_v2";
 const BOOKS_STORAGE_KEY = "soothly_books_v1";
 const MIC_HINT_KEY = "soothly_mic_hint_seen_v1";
 
+// Async book job: poll the status endpoint every POLL_MS until a terminal state. MAX_POLL_MS (the
+// give-up ceiling) lives in lib/synthesis/timing.ts alongside the server cap + staleness it must stay
+// ordered against, so a killed/orphaned job is observed as 'error' (retry) rather than the client
+// timing out blind on a still-'pending' row.
+const POLL_MS = 4000;
+
 export default function InterviewPage() {
   const [step, setStep] = useState<Step>("welcome");
   const [intake, setIntake] = useState<Intake>({ name: "", gender: null, age: "" });
@@ -64,6 +71,8 @@ export default function InterviewPage() {
   const [book, setBook] = useState<BookState>({ status: "idle" });
   const [books, setBooks] = useState<SavedBook[]>([]);
   const bookStartedRef = useRef(false);
+  const bookInFlightRef = useRef(false); // a synthesize POST is awaiting - blocks a second makeBook
+  const pollRef = useRef<{ stop: () => void } | null>(null); // the active status poller, if any
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => setVoiceSupported(isRecordingSupported()), []);
@@ -118,6 +127,9 @@ export default function InterviewPage() {
     void makeBook();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
+
+  // Stop any in-flight poller when the page unmounts so it can't update state after teardown.
+  useEffect(() => () => pollRef.current?.stop(), []);
 
   // Grow the answer box to fit its content on every change - typing, paste, dictation, or reset -
   // so the whole answer stays visible instead of scrolling one line at a time inside a short box.
@@ -285,7 +297,14 @@ export default function InterviewPage() {
     }
   }
 
+  // Kick off (or re-attach to) the book job. The POST either finishes inline (sync dev/test path or an
+  // already-made book -> "ok") or returns "pending" for the background job, which we then poll. The
+  // in-flight guard makes a second makeBook (fast retry, or a reload re-firing the [step] effect while
+  // the first POST is still awaiting) a no-op, so two POSTs/pollers can never run at once.
   async function makeBook() {
+    if (bookInFlightRef.current) return;
+    bookInFlightRef.current = true;
+    pollRef.current?.stop();
     setBook({ status: "generating" });
     try {
       const res = await fetch("/api/synthesize", {
@@ -299,27 +318,80 @@ export default function InterviewPage() {
           answers: buildAnswers(messages),
         }),
       });
-      const data = await res.json();
-      if (data?.status === "ok" && typeof data.url === "string") {
-        const entry: SavedBook = {
-          name: intake.name,
-          url: data.url,
-          title: typeof data.title === "string" ? data.title : undefined,
-          age: intake.age || undefined,
-          createdAt: Date.now(),
-        };
-        const next = addBook(books, entry);
-        safeStorage.set(BOOKS_STORAGE_KEY, JSON.stringify(next));
-        setBooks(next);
-        setBook({ status: "ready", url: data.url });
-      } else if (data?.status === "flagged" && typeof data.message === "string") {
-        setBook({ status: "flagged", message: data.message });
-      } else {
-        setBook({ status: "error" });
-      }
+      handleBookOutcome(await res.json());
     } catch {
       setBook({ status: "error" });
+    } finally {
+      bookInFlightRef.current = false;
     }
+  }
+
+  function handleBookOutcome(data: { status?: string; url?: unknown; title?: unknown; message?: unknown }) {
+    if ((data?.status === "ready" || data?.status === "ok") && typeof data.url === "string") {
+      onBookReady(data.url, typeof data.title === "string" ? data.title : undefined);
+    } else if (data?.status === "flagged" && typeof data.message === "string") {
+      setBook({ status: "flagged", message: data.message });
+    } else if (data?.status === "pending") {
+      startBookPolling();
+    } else {
+      setBook({ status: "error" });
+    }
+  }
+
+  function onBookReady(url: string, title?: string) {
+    // Read the latest library straight from storage (not the captured `books`, which a prior in-flight
+    // makeBook could have left stale) so concurrent saves can't clobber each other.
+    const entry: SavedBook = { name: intake.name, url, title, age: intake.age || undefined, createdAt: Date.now() };
+    const next = addBook(parseBooks(safeStorage.get(BOOKS_STORAGE_KEY)), entry);
+    safeStorage.set(BOOKS_STORAGE_KEY, JSON.stringify(next));
+    setBooks(next);
+    setBook({ status: "ready", url });
+  }
+
+  // Poll the status endpoint until a terminal state (ready/flagged/error) or the MAX_POLL_MS ceiling.
+  // A single network blip keeps polling; onBookReady fires at most once (a terminal tick never reschedules).
+  function startBookPolling() {
+    pollRef.current?.stop();
+    setBook({ status: "generating" });
+    const deadline = Date.now() + MAX_POLL_MS;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    pollRef.current = {
+      stop: () => {
+        stopped = true;
+        if (timer) clearTimeout(timer);
+      },
+    };
+
+    const tick = async () => {
+      if (stopped) return;
+      if (!sessionId || Date.now() > deadline) {
+        setBook({ status: "error" });
+        return;
+      }
+      try {
+        const res = await fetch(`/api/synthesize/status?sessionId=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+        if (stopped) return;
+        if (data?.status === "ready" && typeof data.url === "string") {
+          onBookReady(data.url, typeof data.title === "string" ? data.title : undefined);
+          return;
+        }
+        if (data?.status === "flagged" && typeof data.message === "string") {
+          setBook({ status: "flagged", message: data.message });
+          return;
+        }
+        if (data?.status === "error") {
+          setBook({ status: "error" });
+          return;
+        }
+        // pending -> keep polling
+      } catch {
+        // transient network blip - keep polling until the deadline rather than failing the whole book
+      }
+      timer = setTimeout(tick, POLL_MS);
+    };
+    void tick();
   }
 
   function resume() {
