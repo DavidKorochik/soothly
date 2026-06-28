@@ -49,6 +49,7 @@ export default function SynthesizePage() {
             <select name="gender" required defaultValue="female" className={inputClass}>
               <option value="female">נקבה</option>
               <option value="male">זכר</option>
+              <option value="neutral">בלשון ניטרלית</option>
             </select>
           </Field>
           <Field label="גיל">

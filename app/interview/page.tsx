@@ -10,6 +10,7 @@ import { isRecordingSupported } from "./recorderMime";
 import { safeStorage } from "@/lib/safeStorage";
 import PaperField from "@/app/components/PaperField";
 import BrandMark from "@/app/components/BrandMark";
+import type { Gender } from "@/lib/gender";
 
 // Layout effect on the client so the textarea is resized before paint (no flicker); a plain
 // effect on the server, where useLayoutEffect would only warn and there is nothing to measure.
@@ -32,7 +33,6 @@ function speechPauseMs(ch: string): number {
   return 0;
 }
 
-type Gender = "male" | "female";
 type Intake = { name: string; gender: Gender | null; age: string };
 type Msg = { role: "assistant" | "user"; content: string; error?: boolean };
 type Step = "welcome" | "talking" | "done";
@@ -665,13 +665,13 @@ function Welcome({
 
           <div>
             <span className="mb-2 block font-sans text-sm text-muted">איך לפנות אליך?</span>
-            <div className="flex gap-3">
-              {([["female", "נקבה"], ["male", "זכר"]] as const).map(([g, label]) => (
+            <div className="flex gap-2.5">
+              {([["female", "נקבה"], ["male", "זכר"], ["neutral", "בלשון ניטרלית"]] as const).map(([g, label]) => (
                 <button
                   type="button"
                   key={g}
                   onClick={() => setIntake({ ...intake, gender: g })}
-                  className={`flex-1 rounded-full border px-4 py-2.5 font-sans text-sm transition ${
+                  className={`flex-1 rounded-full border px-3 py-2.5 text-center font-sans text-sm leading-tight transition ${
                     intake.gender === g
                       ? "border-gold-line bg-[rgba(168,124,79,0.1)] text-ink"
                       : "border-rule text-muted hover:border-gold-line"

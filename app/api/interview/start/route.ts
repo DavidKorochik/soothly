@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const Schema = z.object({
   name: z.string().trim().min(1),
-  gender: z.enum(["male", "female"]),
+  gender: z.enum(["male", "female", "neutral"]),
   age: z.coerce.number().int().min(1).max(120),
 });
 

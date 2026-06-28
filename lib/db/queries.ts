@@ -1,13 +1,14 @@
 import { eq } from "drizzle-orm";
 import { sessions, transcripts, funnelEvents } from "./schema";
 import { persistenceEnabled, withRetry } from "./persistence";
+import type { Gender } from "../gender";
 
 // schema imports are connection-free, so this module stays safe to import without a DB.
 const getDb = async () => (await import("./index")).db;
 
 export async function createSession(input: {
   name: string;
-  gender: "male" | "female";
+  gender: Gender;
   age: number;
 }): Promise<string> {
   if (!persistenceEnabled()) return crypto.randomUUID();

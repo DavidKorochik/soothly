@@ -2,16 +2,17 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Decision } from "./engine";
 import { themeByKey, OPENING_THEME } from "./spine";
+import { genderDirective, type Gender } from "../gender";
 
 let system: string | null = null;
 const loadSystem = () =>
   (system ??= fs.readFileSync(path.join(process.cwd(), "docs", "interview_system_prompt.md"), "utf8"));
 
-export function systemFor(gender: "male" | "female", name: string, directive: string): string {
+export function systemFor(gender: Gender, name: string, directive: string): string {
   return `${loadSystem()}
 
 NAME: ${name}
-GENDER: ${gender} - conjugate every Hebrew word for this gender, consistently.
+FORM OF ADDRESS: ${genderDirective(gender)}
 
 DIRECTIVE FOR THIS MESSAGE:
 ${directive}`;

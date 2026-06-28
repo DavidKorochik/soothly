@@ -1,9 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+import { genderDirective, type Gender } from "../gender";
 
 export type SynthesisInput = {
   name: string;
-  gender: "male" | "female";
+  gender: Gender;
   age: number;
   answers: string;
 };
@@ -19,10 +20,10 @@ function load(): string {
 export function buildSynthesisPrompt(input: SynthesisInput): string {
   // Function replacers for the free-text fields: a literal `$` sequence in a name or answer
   // ($&, $`, $', $$) is otherwise read as a special replacement pattern and silently corrupts
-  // the prompt (e.g. `$\`` duplicates the whole preamble into the answers). gender/age are safe.
+  // the prompt (e.g. `$\`` duplicates the whole preamble into the answers). age is a plain number.
   return load()
     .replaceAll("{{NAME}}", () => input.name)
-    .replaceAll("{{GENDER}}", input.gender)
+    .replaceAll("{{GENDER}}", () => genderDirective(input.gender))
     .replaceAll("{{AGE}}", String(input.age))
     .replace("{{PASTE RAW ANSWERS HERE}}", () => input.answers);
 }

@@ -4,11 +4,18 @@ import { buildSynthesisPrompt, type SynthesisInput } from "./prompt";
 import { parseBook, type Book } from "./parse";
 import { runQualityCheck } from "@/lib/quality/check";
 import { repairBook } from "./repair";
+import type { Gender } from "@/lib/gender";
 
 // What surface the judge is scoring — shared by the gate and the post-repair re-judge so both apply
-// the gender rule the same way.
-const QUALITY_CONTEXT =
-  "a personal Hebrew keepsake book; the subject's gender is known, so there should be no slash-gender forms";
+// the gender rule the same way. A neutral book reveals no gender on purpose, so the judge must be told
+// not to flag that absence as an error (otherwise a false gender-agreement flag drives the repair pass
+// to conjugate the text back toward a gender, undoing the neutral request).
+function qualityContext(gender: Gender): string {
+  if (gender === "neutral") {
+    return "a personal Hebrew keepsake book written in deliberately gender-neutral Hebrew - it reveals no gender on purpose, which is correct; do NOT flag the absence of gender agreement, and there should be no slash-gender forms";
+  }
+  return "a personal Hebrew keepsake book; the subject's gender is known, so there should be no slash-gender forms";
+}
 
 // Opus for the book - it's once per customer and the highest-stakes Hebrew we produce; it follows
 // the long ban-list and avoids translationese better than Sonnet. Opus 4.8 rejects `temperature`.
@@ -49,11 +56,12 @@ export async function synthesizeBook(input: SynthesisInput): Promise<Book> {
   // flagged lines, then re-judge and keep the better draft). Fail-open by design - the original book
   // is already valid, so any judge/repair hiccup keeps it, never discards it. (This differs from the
   // safety gate, which fails CLOSED - there the stakes run the other way.)
-  const verdict = await runQualityCheck(raw, QUALITY_CONTEXT);
+  const context = qualityContext(input.gender);
+  const verdict = await runQualityCheck(raw, context);
   if (verdict.ok) return book;
 
   try {
-    return await repairBook({ raw, original: book, verdict, context: QUALITY_CONTEXT });
+    return await repairBook({ raw, original: book, verdict, context });
   } catch (error) {
     const kind = error instanceof Error ? error.name : "Unknown";
     console.error(`book repair pass failed (${kind}) - keeping the original book`);

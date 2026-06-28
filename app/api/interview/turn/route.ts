@@ -15,7 +15,7 @@ const MsgSchema = z.object({ role: z.enum(["assistant", "user"]), content: z.str
 const Schema = z.object({
   sessionId: z.string().uuid(),
   name: z.string(),
-  gender: z.enum(["male", "female"]),
+  gender: z.enum(["male", "female", "neutral"]),
   messages: z.array(MsgSchema).min(1),
   engine: z.object({
     current: z.string(),

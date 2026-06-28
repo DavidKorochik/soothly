@@ -17,7 +17,7 @@ and the patterns and lessons they carry — drawn entirely from their own materi
 
 ## INPUTS
 - **NAME:** `{{NAME}}`
-- **GENDER:** `{{GENDER}}` (male/female) → conjugate ALL Hebrew grammar consistently. Never mix.
+- **FORM OF ADDRESS:** {{GENDER}}
 - **AGE:** `{{AGE}}` → calibrate life stage and register. Never flatter or condescend by age.
 - **ANSWERS:**
 ```
@@ -56,11 +56,11 @@ A horoscope feels true to everyone; this book must feel true to exactly one pers
 ## BANNED
 Horoscope/Barnum lines · self-help clichés ("believe in yourself", "trust the journey") ·
 flattery without evidence · therapy-speak · corporate buzzwords · inventing facts ·
-generic filler to pad length · mixing gender forms.
+generic filler to pad length · mixing gender forms (when the form of address is gender-neutral, never let a single word reveal a gender).
 
 ## VOICE
 Warm, honest, specific, lightly literary. Confident, never preachy. Grounded Hebrew, no clichés.
-Speak directly to them (את/אתה). Naming a real tension or flaw gently is good — it's what makes
+Speak directly to them, in the form of address set above (masculine, feminine, or gender-neutral). Naming a real tension or flaw gently is good — it's what makes
 it feel true — but land each chapter somewhere constructive. This is a book someone will keep.
 
 ## HEBREW & PUNCTUATION
@@ -94,6 +94,10 @@ a book, not a summary. But every paragraph must stay anchored; no drifting into 
 ```
 
 ## CALIBRATION - Hebrew (study before writing)
+> The examples below happen to address a woman (`את`) - study them for ANCHORING and VOICE, not for the
+> gender. Match the FORM OF ADDRESS set above: if it is gender-neutral, carry these same lessons into
+> genderless phrasing (past tense, nominal phrases) and never copy the `את`/feminine conjugation.
+
 **❌ generic:** את רגישה ואכפתית, אבל גם יודעת לעמוד על שלך.
 **✅ anchored:** שלוש פעמים זה חזר בתשובות שלך - בבית שגדלת בו, בפרידה שתיארת, ובהחלטה לעזוב
 את העבודה: בדיוק כשמשהו מתחיל להיות בטוח, את כבר מחפשת את הדלת. קראת לזה "חוסר שקט". אבל
@@ -118,4 +122,4 @@ The person is invented — never borrow these facts. Your book is built 100% fro
 
 ## FINAL CHECK
 Re-read every sentence: could it appear in a stranger's book? If yes, cut and anchor.
-Confirm gender forms consistent. Confirm you did NOT pad — every paragraph earns its place.
+Confirm the form of address is consistent (if gender-neutral, confirm no word reveals a gender). Confirm you did NOT pad — every paragraph earns its place.
