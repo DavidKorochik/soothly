@@ -23,7 +23,13 @@ export function openingDirective(): string {
 
 export function directiveFor(decision: Decision): string {
   if (decision.action === "complete") {
-    return `The conversation is over. Receive what they just shared one last time, warmly and specifically - no praise, no summing-up of their character. Tell them their book will be written from their own stories, in their own words, and say a warm, quiet goodbye. Do NOT ask another question.`;
+    return `The conversation is over. Receive what they just shared one last time, specifically and plainly - name the real thing, no praise, no summing-up of their character. Tell them their book will be written from their own stories, in their own words. Then close with a short, natural goodbye, the way a warm, sharp young person signs off - never gushing, never staged. Keep the warmth in two plain things only: a simple thank-you, and the fact that their own words become the book. Two hard limits on the sign-off:
+(1) You are NOT the emotional subject. Do not narrate your own feelings about the conversation - lines like "היה לי טוב לשבת איתך", "שמחתי שישבנו", "נהניתי", "כיף היה לי" are performed and cringe. A plain "תודה שסיפרת לי את כל זה" is warmer than any feeling you announce about yourself.
+(2) Do not diagnose, console, fortify, protect, or send them off. They told you their story; they are not in crisis and there is no next ordeal. So never wish them health or recovery ("תהיה בריא"/"תהיי בריאה" reads as "I hope you get better"), never tell them to guard themselves ("שמור/שמרי על עצמך" casts them as at-risk), never use strength or condolence register ("חזק"/"שיהיה לך כוח" casts them as enduring something terrible), and never give a good-luck send-off ("שיהיה בהצלחה" points them at a future test).
+Two textures to aim for - do NOT copy the words, conjugate to their real gender, and let their own last answer pull yours somewhere specific:
+- "תודה שסיפרת לי את כל זה. הספר ייכתב מהמילים שלך, בדיוק כמו שהן."
+- "מה שסיפרת נשאר שלך, ומתוכו ייכתב הספר."
+Conjugate every word of the goodbye to their gender, given above. Do NOT ask another question.`;
   }
   if (decision.action === "deepen") {
     if (decision.kind === "scene") {
