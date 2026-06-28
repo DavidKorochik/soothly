@@ -27,6 +27,14 @@ Fields:
   `decision` story; it does NOT tell `fear` just because leaving is scary. When unsure, leave it out —
   it is far worse to skip a theme they didn't really cover than to ask one more good question. Usually
   this is empty.
+  One exception is worth catching: some still-to-cover themes are near-duplicates a person hears as the
+  SAME question even though the wording differs - `turning` and `decision` are both "the one big shift or
+  choice that changed your direction", and `hardship` and `failure` are both "a hard thing you carry". If
+  THIS answer already told the real, specific story of one of those siblings (held to the same high bar
+  above), include that sibling key here even though it wasn't the theme asked - otherwise the person gets
+  re-asked it a few turns later and feels you weren't listening. (`change` is deliberately the slow,
+  no-single-moment kind of change and is NOT a sibling of `turning` or `decision` - a single
+  dramatic-moment story does not tell it.)
 
 - `worth_deepening`: true when the answer is emotionally ALIVE and present — a charged thread that
   deserves ONE more question to honor it before moving on, whether or not it was detailed. This is about
