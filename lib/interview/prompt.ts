@@ -23,7 +23,7 @@ export function openingDirective(): string {
 
 export function directiveFor(decision: Decision): string {
   if (decision.action === "complete") {
-    return `The conversation is over. Receive what they just shared one last time, warmly and specifically - no praise, no summing-up of their character. Tell them their book will be written from their own stories, in their own words, and say a warm, quiet goodbye. Do NOT ask another question.`;
+    return `The conversation is over. Receive what they just shared one last time, warmly and specifically - no praise, no summing-up of their character. Then tell them plainly that their book will be written from exactly what they told you - their own stories, in their own words. You may echo two or three concrete details they actually gave (a person, a place, a small moment) and let the closing land directly on those - the shape "these are the real things, and the book is written from them." Keep that last line clean and direct: do NOT trail off into a vague relative clause like "and these are what will be in it." Then say a warm, quiet goodbye. Do NOT ask another question.`;
   }
   if (decision.action === "deepen") {
     if (decision.kind === "scene") {
