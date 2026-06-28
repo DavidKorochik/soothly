@@ -1,6 +1,6 @@
 import { pgTable, pgEnum, uuid, text, integer, jsonb, timestamp, index } from "drizzle-orm/pg-core";
 
-export const genderEnum = pgEnum("gender", ["male", "female"]);
+export const genderEnum = pgEnum("gender", ["male", "female", "neutral"]);
 
 export const sessionStatusEnum = pgEnum("session_status", [
   "in_progress",

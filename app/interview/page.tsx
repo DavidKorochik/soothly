@@ -10,6 +10,7 @@ import { isRecordingSupported } from "./recorderMime";
 import { safeStorage } from "@/lib/safeStorage";
 import PaperField from "@/app/components/PaperField";
 import BrandMark from "@/app/components/BrandMark";
+import type { Gender } from "@/lib/gender";
 
 // Layout effect on the client so the textarea is resized before paint (no flicker); a plain
 // effect on the server, where useLayoutEffect would only warn and there is nothing to measure.
@@ -32,8 +33,7 @@ function speechPauseMs(ch: string): number {
   return 0;
 }
 
-type Gender = "male" | "female";
-type Intake = { name: string; gender: Gender; age: string };
+type Intake = { name: string; gender: Gender | null; age: string };
 type Msg = { role: "assistant" | "user"; content: string; error?: boolean };
 type Step = "welcome" | "talking" | "done";
 type Saved = { intake: Intake; sessionId: string; engine: EngineState; messages: Msg[]; step: Step };
@@ -50,7 +50,7 @@ const MIC_HINT_KEY = "soothly_mic_hint_seen_v1";
 
 export default function InterviewPage() {
   const [step, setStep] = useState<Step>("welcome");
-  const [intake, setIntake] = useState<Intake>({ name: "", gender: "female", age: "" });
+  const [intake, setIntake] = useState<Intake>({ name: "", gender: null, age: "" });
   const [sessionId, setSessionId] = useState("");
   const [engine, setEngine] = useState<EngineState>(START);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -268,7 +268,7 @@ export default function InterviewPage() {
   }, [voice.status, micHintSeen, dismissMicHint]);
 
   async function begin() {
-    if (!intake.name.trim() || !intake.age) return;
+    if (!intake.name.trim() || !intake.age || !intake.gender) return;
     setResumable(null);
     setMessages([]);
     setEngine(START);
@@ -595,7 +595,7 @@ function Welcome({
   // Reduced-motion (and a missing field) fall straight through with no animation.
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!intake.name.trim() || !intake.age || leaving) return;
+    if (!intake.name.trim() || !intake.age || !intake.gender || leaving) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       onBegin();
       return;
@@ -665,13 +665,13 @@ function Welcome({
 
           <div>
             <span className="mb-2 block font-sans text-sm text-muted">איך לפנות אליך?</span>
-            <div className="flex gap-3">
-              {([["female", "נקבה"], ["male", "זכר"]] as const).map(([g, label]) => (
+            <div className="flex gap-2.5">
+              {([["female", "נקבה"], ["male", "זכר"], ["neutral", "בלשון ניטרלית"]] as const).map(([g, label]) => (
                 <button
                   type="button"
                   key={g}
                   onClick={() => setIntake({ ...intake, gender: g })}
-                  className={`flex-1 rounded-full border px-4 py-2.5 font-sans text-sm transition ${
+                  className={`flex-1 rounded-full border px-3 py-2.5 text-center font-sans text-sm leading-tight transition ${
                     intake.gender === g
                       ? "border-gold-line bg-[rgba(168,124,79,0.1)] text-ink"
                       : "border-rule text-muted hover:border-gold-line"
@@ -700,8 +700,8 @@ function Welcome({
 
           <button
             type="submit"
-            disabled={leaving}
-            className="mt-2 rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90 disabled:opacity-90"
+            disabled={leaving || !intake.gender}
+            className="mt-2 rounded-full bg-ink px-8 py-3.5 font-sans text-paper transition hover:opacity-90 disabled:opacity-40"
           >
             מתחילים
           </button>

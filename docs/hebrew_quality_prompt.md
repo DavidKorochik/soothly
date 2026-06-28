@@ -26,10 +26,12 @@ Flag each offending phrase under the closest rule:
 - `archaic` - courtroom-formal Hebrew: `בכדי`, `אשר`, `על מנת`, `מהווה`, `הינו`, `באפשרותך`,
   `אשר על ליבך`, and `ניתן` where `אפשר` fits.
 - `slash-gender` - slash / inner-dot / period gender forms (`את/ה`, `כתוב/י`, `תלמיד.ה`). This is a
-  violation ONLY in static UI copy, where gender is unknown. In a book or interview message the
-  gender is known, so slash-forms are not expected there - if the gender is wrong or mixed, flag it
-  under `gender-agreement` instead.
-- `gender-agreement` - inconsistent or wrong gender / number agreement within the text.
+  violation ONLY in static UI copy, where gender is unknown. In a book or interview message the form
+  of address is fixed (masculine, feminine, or gender-neutral), so slash-forms are not expected there -
+  if the form is wrong or mixed, flag it under `gender-agreement` instead.
+- `gender-agreement` - inconsistent or wrong gender / number agreement within the text. Gender-neutral
+  writing - which reveals no gender by design (nominal phrases, past tense, `שלך`/`לך`/`אותך`) - is NOT
+  a violation. Flag only a real agreement error, never the deliberate absence of a gender.
 - `dash` - any em-dash (—) or en-dash (–); also a semicolon or a decorative `...` in reflective copy.
 - `barnum` - horoscope / Barnum lines: true of anyone, not anchored to this person's specifics;
   flattery with no evidence from their own material.

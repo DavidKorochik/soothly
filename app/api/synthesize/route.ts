@@ -10,7 +10,7 @@ export const maxDuration = 300; // long-form synthesis; the gate is validated lo
 const InputSchema = z.object({
   sessionId: z.string().uuid().optional(), // present from the interview; absent from the internal test page
   name: z.string().trim().min(1),
-  gender: z.enum(["male", "female"]),
+  gender: z.enum(["male", "female", "neutral"]),
   age: z.coerce.number().int().min(1).max(120),
   answers: z.string().trim().min(1).max(100000),
 });
