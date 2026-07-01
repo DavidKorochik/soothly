@@ -7,6 +7,8 @@ export const sessionStatusEnum = pgEnum("session_status", [
   "completed",
   "flagged", // safety check surfaced crisis signals — human review before any generation
   "synthesized",
+  "synthesizing", // synthesis job claimed + running - the claim's serialization token
+  "failed", // synthesis errored or was swept stale; re-claimable for a retry
 ]);
 
 export const sessions = pgTable("sessions", {
@@ -16,6 +18,9 @@ export const sessions = pgTable("sessions", {
   age: integer("age").notNull(),
   status: sessionStatusEnum("status").notNull().default("in_progress"),
   bookKey: text("book_key"), // set once the book is synthesized + stored - links the session to its PDF
+  title: text("title"), // persisted book title - lets a reload/poll show it without re-running synthesis
+  chapterCount: integer("chapter_count"), // persisted chapter count, alongside the title
+  synthesisStartedAt: timestamp("synthesis_started_at", { withTimezone: true }), // claim time (DB now()) - drives staleness detection
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

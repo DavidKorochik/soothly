@@ -9,7 +9,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test": "node --experimental-strip-types --test lib/gender.test.ts lib/synthesis/parse.test.ts lib/synthesis/patch.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/interview/spine.test.ts lib/transcription/transcribe.test.ts lib/status/check.test.ts lib/quality/decide.test.ts lib/db/persistence.test.ts lib/interview/answers.test.ts lib/interview/books.test.ts",
+    "test": "node --experimental-strip-types --test lib/gender.test.ts lib/synthesis/parse.test.ts lib/synthesis/patch.test.ts lib/synthesis/timing.test.ts lib/synthesis/withTimeout.test.ts lib/synthesis/statusResponse.test.ts lib/safety/decide.test.ts lib/pdf/template.test.ts lib/interview/engine.test.ts lib/interview/spine.test.ts lib/transcription/transcribe.test.ts lib/status/check.test.ts lib/quality/decide.test.ts lib/db/persistence.test.ts lib/interview/answers.test.ts lib/interview/books.test.ts",
     "ab:run": "node --experimental-strip-types scripts/hebrew-ab/run.ts",
     "ab:tally": "node --experimental-strip-types scripts/hebrew-ab/tally.ts"
   },
