@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { streamText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { planTurn, type TurnPlan } from "@/lib/interview/planner";
 import { decideNext } from "@/lib/interview/engine";
 import { themeByKey, reachableThemes, nextCoverage, THEMES, TOTAL_THEMES } from "@/lib/interview/spine";
@@ -95,11 +95,12 @@ export async function POST(req: Request) {
     }
   }
 
+  const { model, temperature } = modelFor("interview");
   const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
+    model,
     system: systemFor(gender, name, directive),
     messages,
-    temperature: 0.7,
+    temperature,
     // A turn is one short message; cap it so a runaway generation can't stall the reveal. A stalled
     // stream is caught by the client watchdog and surfaced as a retry - not bounded with the SDK's
     // chunkMs, which would close a mid-stream stall as a clean 200 and render a truncated question.

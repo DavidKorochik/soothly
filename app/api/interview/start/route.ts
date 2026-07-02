@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { streamText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { createSession, logFunnel } from "@/lib/db/queries";
 import { START } from "@/lib/interview/engine";
 import { systemFor, openingDirective } from "@/lib/interview/prompt";
@@ -27,11 +27,12 @@ export async function POST(req: Request) {
   await logFunnel({ sessionId, event: "interview_started", phase: 1 });
   await logFunnel({ sessionId, event: "question_reached", phase: 1, questionKey: "now" });
 
+  const { model, temperature } = modelFor("interview");
   const result = streamText({
-    model: anthropic("claude-sonnet-4-6"),
+    model,
     system: systemFor(input.gender, input.name, openingDirective()),
     prompt: "Begin.",
-    temperature: 0.7,
+    temperature,
     // Generous cap for the longer opening (greeting + reassurance + first question); still bounds a
     // runaway. A stalled stream is caught by the client watchdog and surfaced as a retry.
     maxOutputTokens: 500,

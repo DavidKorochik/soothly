@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",
+    "@ai-sdk/openai": "^3.0.74",
     "@neondatabase/serverless": "^1.0.2",
     "@sparticuz/chromium": "^149.0.0",
     "@vercel/blob": "^2.4.1",
@@ -28,7 +29,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@ai-sdk/openai": "^3.0.74",
     "@tailwindcss/postcss": "^4.3.1",
     "@types/node": "^22.10.7",
     "@types/react": "^19.2.0",
