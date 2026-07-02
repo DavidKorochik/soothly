@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { z } from "zod";
 import { decide, type SafetyDecision } from "./decide";
 
@@ -21,13 +21,14 @@ function loadPrompt(): string {
 }
 
 export async function runSafetyCheck(answers: string): Promise<SafetyDecision> {
+  const { model, temperature } = modelFor("safety");
   try {
     const { object } = await generateObject({
-      model: anthropic("claude-sonnet-4-6"),
+      model,
       schema: ClassificationSchema,
       system: loadPrompt(),
       prompt: answers,
-      temperature: 0,
+      temperature,
       // generateObject ignores `timeout`, so bound the only unbounded model call in the pipeline via
       // abortSignal — a hung classifier must not silently eat the synthesize route's 300s budget. On
       // timeout this throws and we fail CLOSED below, exactly as for any other classifier failure.

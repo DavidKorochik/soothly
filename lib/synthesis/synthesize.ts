@@ -1,5 +1,5 @@
 import { streamText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { buildSynthesisPrompt, type SynthesisInput } from "./prompt";
 import { parseBook, type Book } from "./parse";
 import { runQualityCheck } from "@/lib/quality/check";
@@ -17,10 +17,6 @@ function qualityContext(gender: Gender): string {
   return "a personal Hebrew keepsake book; the subject's gender is known, so there should be no slash-gender forms";
 }
 
-// Opus for the book - it's once per customer and the highest-stakes Hebrew we produce; it follows
-// the long ban-list and avoids translationese better than Sonnet. Opus 4.8 rejects `temperature`.
-const MODEL = anthropic("claude-opus-4-8");
-
 const SYSTEM =
   "אתה כותב את הספר בעברית בלבד. התחל מיד בסמן [TITLE], בלי שום טקסט לפניו. הפק אך ורק את הספר עם הסמנים (markers) בדיוק כפי שהוגדר - בלי הקדמה, בלי הסברים, בלי מחשבות, בלי טקסט באנגלית.";
 
@@ -34,8 +30,12 @@ const GENERATE_TIMEOUT_MS = 180_000;
 // name/message only - never the raw error object, which can carry the prompt/response body (the
 // person's stories) into logs.
 async function generate(prompt: string, timeoutMs: number): Promise<string> {
+  // The book writer - the highest-stakes Hebrew we produce, once per customer. Provider is chosen
+  // centrally in @/lib/models (default OpenAI gpt-5.1); neither the OpenAI nor the Opus book model takes
+  // `temperature`, so we leave it at the provider default.
+  const { model } = modelFor("book");
   const result = streamText({
-    model: MODEL,
+    model,
     system: SYSTEM,
     prompt,
     maxOutputTokens: 32000,

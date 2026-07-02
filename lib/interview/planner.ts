@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { z } from "zod";
 import type { Plan } from "./engine";
 import type { Theme } from "./spine";
@@ -35,9 +35,10 @@ export async function planTurn(input: {
   remaining: Theme[]; // every still-uncovered theme (so the planner can flag what's already been told)
 }): Promise<TurnPlan> {
   const { theme, answer, candidates, remaining } = input;
+  const { model, temperature } = modelFor("planner");
   try {
     const { object } = await generateObject({
-      model: anthropic("claude-sonnet-4-6"),
+      model,
       schema: PlanSchema,
       system: loadPrompt(),
       prompt: [
@@ -51,7 +52,7 @@ export async function planTurn(input: {
         `MAY ASK NEXT — pick "next_theme" from these keys only (the one that flows most naturally from what they just said). null if none fit.`,
         themeList(candidates) || "- (none)",
       ].join("\n"),
-      temperature: 0,
+      temperature,
       // Gates the next question — keep it from stalling the turn: cap output, retry once (not the SDK's
       // default twice), and bound it with a real abort. We use abortSignal rather than the SDK's `timeout`
       // option so the deadline surfaces as a thrown error and takes the fail-OPEN path below.

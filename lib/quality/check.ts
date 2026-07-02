@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { z } from "zod";
 import { decide, QUALITY_RULES, type QualityVerdict } from "./decide";
 
@@ -29,13 +29,14 @@ function loadPrompt(): string {
 // Score a piece of Hebrew against the brand-voice rules. `context` tells the judge what surface this
 // is (e.g. a book vs static UI copy) so it applies the gender rule correctly.
 export async function runQualityCheck(text: string, context: string): Promise<QualityVerdict> {
+  const { model, temperature } = modelFor("quality");
   try {
     const { object } = await generateObject({
-      model: anthropic("claude-haiku-4-5"),
+      model,
       schema: ReportSchema,
       system: loadPrompt(),
       prompt: `CONTEXT: ${context}\n\nTEXT TO JUDGE:\n${text}`,
-      temperature: 0,
+      temperature,
       // generateObject ignores the `timeout` option (only generateText/streamText honor it), so the
       // deadline MUST go through abortSignal; one retry, not the SDK default of two.
       maxOutputTokens: 4000,

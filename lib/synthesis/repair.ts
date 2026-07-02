@@ -1,5 +1,5 @@
 import { generateObject } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/models";
 import { z } from "zod";
 import { parseBook, type Book } from "./parse";
 import { runQualityCheck } from "@/lib/quality/check";
@@ -14,9 +14,6 @@ import { applyDirectFixes, replaceAllLiteral, markerSequence } from "./patch";
 
 type FlaggedVerdict = Extract<QualityVerdict, { ok: false }>;
 
-// Fast model for the bounded patch — the output is a short edit list, not a full rewrite, so Sonnet's
-// speed wins and its Hebrew is more than enough to apply a phrase fix the judge already specified.
-const PATCH_MODEL = anthropic("claude-sonnet-4-6");
 const PATCH_TIMEOUT_MS = 25_000;
 
 const EditsSchema = z.object({
@@ -35,15 +32,18 @@ const actionable = (violations: Violation[]): Violation[] =>
 
 async function applyModelPatch(text: string, unresolved: Violation[]): Promise<string> {
   const issues = unresolved.map((v) => `- ${v.rule}: "${v.quote}" -> ${v.suggestion}`).join("\n");
+  // Bounded patch model - the output is a short edit list, not a full rewrite, so its Hebrew only needs
+  // to apply a phrase fix the judge already specified. Provider is chosen centrally in @/lib/models.
+  const { model, temperature } = modelFor("repair");
   const { object } = await generateObject({
-    model: PATCH_MODEL,
+    model,
     schema: EditsSchema,
     system:
       "אתה משפר את העברית של ספר גמור. תקבל את הספר ורשימת בעיות ניסוח. החזר רשימת עריכות מינימליות: " +
       "`find` חייב להיות טקסט שהעתקת מילה-במילה מהספר (כדי שיימצא בדיוק), ו-`replace` הוא העברית המשופרת. " +
       "שנה רק את הניסוח שסומן - אל תיגע בתוכן, בעובדות, במבנה או בסמנים כמו [TITLE]. עברית טבעית, חמה ומדויקת.",
     prompt: `הבעיות לתיקון:\n${issues}\n\nהספר:\n${text}`,
-    temperature: 0,
+    temperature,
     maxOutputTokens: 2000,
     maxRetries: 1,
     abortSignal: AbortSignal.timeout(PATCH_TIMEOUT_MS),
