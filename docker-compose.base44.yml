@@ -1,0 +1,33 @@
+# Base44 dev environment for Soothly.
+# The app is designed to run without a database in local dev (persistenceEnabled()
+# is fail-open when DATABASE_URL is unset and not on Vercel), so no Postgres service
+# is needed to render the landing page or run the interview end-to-end.
+services:
+  web:
+    image: node:22
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules # keep container-installed deps separate from the bind mount
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_APP_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
+      - BASE44_PUBLIC_HOST_SUFFIX=${BASE44_PUBLIC_HOST_SUFFIX}
+      # Puppeteer ships a Chromium download in its postinstall; we don't need it for dev.
+      - PUPPETEER_SKIP_DOWNLOAD=true
+    # Install from the lockfile, then start the dev server bound to all interfaces
+    # so the preview proxy can reach it.
+    command: ["sh", "-ec", "npm install && exec npm run dev -- -H 0.0.0.0 -p 3000"]
+    restart: on-failure
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 90s

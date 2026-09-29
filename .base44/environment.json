@@ -1,0 +1,19 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "Anthropic API key (console.anthropic.com → API Keys). Powers the interview question streaming and book synthesis. Without it the landing page still renders but the interview/synthesis features won't work.",
+      "requiredAtBoot": false,
+      "generatedForDevelopment": false
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key (platform.openai.com → API Keys). Powers Hebrew speech-to-text (gpt-4o-transcribe) for the optional voice dictation in the interview. Without it the mic appears but transcription returns a 'type instead' message.",
+      "requiredAtBoot": false,
+      "generatedForDevelopment": false
+    }
+  ]
+}
